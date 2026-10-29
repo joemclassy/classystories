@@ -1,0 +1,14 @@
+{
+  "name": "ClassyStories Story Player",
+  "short_name": "ClassyStories",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0E1018",
+  "theme_color": "#0E1018",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
