@@ -373,7 +373,7 @@ TURO: ituro ang audience
 <script>
 'use strict';
 const SOURCE_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-const ENGINE_VERSION = '1.9';
+const ENGINE_VERSION = '2.0';
 const IS_SCRIPT = location.hash.replace('#', '').toLowerCase() === 'script';
 const IS_MOBILE = /[?&]mobile=1/.test(location.search) || (/[?&]mobile=0/.test(location.search) ? false : (matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) < 900));
 
@@ -566,9 +566,9 @@ function headTopLocal(a) { const c = CAST[a.id]; if (c && c.kind === 'creature')
 function markOffset(a) { const c = CAST[a.id]; if (c && c.kind === 'creature') return [c.type === 'dog' || c.type === 'straydog' ? 40 : c.type === 'cat' || c.type === 'straycat' ? 26 : 0, (CREATURE_HEAD[c.type] || -120) + 200]; return a.stance === 'lie' ? [-54, 112] : [0, STANCE_DY[a.stance] || 0]; }
 
 /* ========== backgrounds ========== */
-const BG_LIST = ['store', 'showroom', 'condo', 'lupa', 'bangko', 'barangay', 'kanto', 'court', 'bar', 'bundok', 'gubat', 'sementeryo', 'beach', 'magulang', 'munisipyo', 'city', 'office', 'sala', 'callcenter', 'sarisari', 'palengke', 'kalsada', 'farm', 'bedroom', 'plain'];
-const BG_ALIAS = { street: 'city', 'city-street': 'city', cityStreet: 'city', lungsod: 'city', opisina: 'office', house: 'barangay', bahay: 'barangay', 'bahay-ni-classy': 'barangay', bahayniclassy: 'barangay', neighborhood: 'barangay', kapitbahay: 'barangay', brgy: 'barangay', gadgetstore: 'store', mall: 'store', phonestore: 'store', tindahanngcellphone: 'store', carshowroom: 'showroom', dealer: 'showroom', casa: 'showroom', condominium: 'condo', unit: 'condo', lote: 'lupa', land: 'lupa', farmlot: 'lupa', bank: 'bangko', teller: 'bangko', basketball: 'court', basketbolan: 'court', liga: 'court', inuman: 'bar', videoke: 'bar', karaoke: 'bar', club: 'bar', mountain: 'bundok', summit: 'bundok', hiking: 'bundok', forest: 'gubat', kagubatan: 'gubat', balete: 'gubat', cemetery: 'sementeryo', libingan: 'sementeryo', dagat: 'beach', baybay: 'beach', sea: 'beach', resort: 'beach', kalye: 'kanto', crossing: 'kanto', bbq: 'kanto', ihawan: 'kanto', jeepstop: 'kanto', parents: 'magulang', bahaynanay: 'magulang', bahaynimagulang: 'magulang', bahaynanaytatay: 'magulang', probinsyahouse: 'magulang', townhall: 'munisipyo', cityhall: 'munisipyo', munisipyohall: 'munisipyo', mayor: 'munisipyo', living: 'sala', livingroom: 'sala', 'call-center': 'callcenter', bpo: 'callcenter', store: 'sarisari', 'sari-sari': 'sarisari', tindahan: 'sarisari', market: 'palengke', roadside: 'kalsada', 'tabing-kalsada': 'kalsada', road: 'kalsada', bukid: 'farm', probinsya: 'farm', kwarto: 'bedroom', room: 'bedroom', solid: 'plain', blank: 'plain' };
-const BG_LABEL = { store: 'Gadget store', showroom: 'Car showroom', condo: 'Condo (high-rise)', lupa: 'Lupa / lote', bangko: 'Bangko',  court: 'Basketball court (barangay)', bar: 'Videoke bar', bundok: 'Bundok / summit', gubat: 'Gubat (may balete)', sementeryo: 'Sementeryo', beach: 'Beach / dagat', kanto: 'Kanto / kalsada (jeep, motor, ihawan)', barangay: 'Bahay ni Classy (barangay)', magulang: 'Bahay nina Nanay & Tatay', munisipyo: 'Munisipyo', city: 'City street', office: 'Office', sala: 'House / sala', callcenter: 'Call center', sarisari: 'Sari-sari store', palengke: 'Palengke', kalsada: 'Tabing kalsada', farm: 'Farm / bukid', bedroom: 'Bedroom', plain: 'Plain color' };
+const BG_LIST = ['phone', 'store', 'showroom', 'condo', 'lupa', 'bangko', 'barangay', 'kanto', 'court', 'bar', 'bundok', 'gubat', 'sementeryo', 'beach', 'magulang', 'munisipyo', 'city', 'office', 'sala', 'callcenter', 'sarisari', 'palengke', 'kalsada', 'farm', 'bedroom', 'plain'];
+const BG_ALIAS = { street: 'city', cellphone: 'phone', cp: 'phone', selpon: 'phone', screen: 'phone', smartphone: 'phone', 'city-street': 'city', cityStreet: 'city', lungsod: 'city', opisina: 'office', house: 'barangay', bahay: 'barangay', 'bahay-ni-classy': 'barangay', bahayniclassy: 'barangay', neighborhood: 'barangay', kapitbahay: 'barangay', brgy: 'barangay', gadgetstore: 'store', mall: 'store', phonestore: 'store', tindahanngcellphone: 'store', carshowroom: 'showroom', dealer: 'showroom', casa: 'showroom', condominium: 'condo', unit: 'condo', lote: 'lupa', land: 'lupa', farmlot: 'lupa', bank: 'bangko', teller: 'bangko', basketball: 'court', basketbolan: 'court', liga: 'court', inuman: 'bar', videoke: 'bar', karaoke: 'bar', club: 'bar', mountain: 'bundok', summit: 'bundok', hiking: 'bundok', forest: 'gubat', kagubatan: 'gubat', balete: 'gubat', cemetery: 'sementeryo', libingan: 'sementeryo', dagat: 'beach', baybay: 'beach', sea: 'beach', resort: 'beach', kalye: 'kanto', crossing: 'kanto', bbq: 'kanto', ihawan: 'kanto', jeepstop: 'kanto', parents: 'magulang', bahaynanay: 'magulang', bahaynimagulang: 'magulang', bahaynanaytatay: 'magulang', probinsyahouse: 'magulang', townhall: 'munisipyo', cityhall: 'munisipyo', munisipyohall: 'munisipyo', mayor: 'munisipyo', living: 'sala', livingroom: 'sala', 'call-center': 'callcenter', bpo: 'callcenter', store: 'sarisari', 'sari-sari': 'sarisari', tindahan: 'sarisari', market: 'palengke', roadside: 'kalsada', 'tabing-kalsada': 'kalsada', road: 'kalsada', bukid: 'farm', probinsya: 'farm', kwarto: 'bedroom', room: 'bedroom', solid: 'plain', blank: 'plain' };
+const BG_LABEL = { phone: 'Screen ng cellphone (load, wallet, chat, call, bank, search, news, home)',  store: 'Gadget store', showroom: 'Car showroom', condo: 'Condo (high-rise)', lupa: 'Lupa / lote', bangko: 'Bangko',  court: 'Basketball court (barangay)', bar: 'Videoke bar', bundok: 'Bundok / summit', gubat: 'Gubat (may balete)', sementeryo: 'Sementeryo', beach: 'Beach / dagat', kanto: 'Kanto / kalsada (jeep, motor, ihawan)', barangay: 'Bahay ni Classy (barangay)', magulang: 'Bahay nina Nanay & Tatay', munisipyo: 'Munisipyo', city: 'City street', office: 'Office', sala: 'House / sala', callcenter: 'Call center', sarisari: 'Sari-sari store', palengke: 'Palengke', kalsada: 'Tabing kalsada', farm: 'Farm / bukid', bedroom: 'Bedroom', plain: 'Plain color' };
 function resolveBg(s) { if (!s) return null; const k = s.toLowerCase().replace(/\s+/g, ''); if (BG_LIST.includes(k)) return k; return BG_ALIAS[k] || BG_ALIAS[s.toLowerCase()] || null; }
 
 const R = (x, y, w, h, f, ex = '') => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${f}" ${ex}/>`;
@@ -1192,6 +1192,49 @@ const BG = {
     for (let x = 0; x < W; x += 200) for (let y = 1500; y < H; y += 200) if (((x + y) / 200) % 2) s += R(x, y, 200, 200, '#E6E9EE');
     return { base: s, lights };
   },
+  phone(n, color, sc) {
+    const v = (sc && sc.phone) || 'home', txt = esc((sc && sc.phoneTxt) || '');
+    let s = R(0, 0, W, H, '#11131B'), lights = '';
+    const r = rng(5); for (let i = 0; i < 40; i++) s += `<circle cx="${(r() * W) | 0}" cy="${(r() * H) | 0}" r="${(30 + r() * 90) | 0}" fill="#1B2030" opacity=".8"/>`;
+    const px = SAFE_L + 40, pw = SAFE_R - SAFE_L - 80, py = 50, ph = H - 100, sx = px + 26, sw = pw - 52, sy = py + 26, sh = ph - 52;
+    s += `<rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="110" fill="#22252B" stroke="#3A3F48" stroke-width="6"/><rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="88" fill="#F4F6FA"/>`;
+    s += `<rect x="${CX - 120}" y="${sy + 22}" width="240" height="60" rx="30" fill="#0B0C10"/>`;
+    s += `<text x="${sx + 90}" y="${sy + 66}" font-family="Arial Black,Arial" font-size="34" fill="#1C1C1E">9:41</text>`;
+    s += `<g transform="translate(${sx + sw - 200},${sy + 40})">${[0, 1, 2, 3].map(i => `<rect x="${i * 14}" y="${24 - i * 7}" width="9" height="${8 + i * 7}" rx="2" fill="#1C1C1E"/>`).join('')}<rect x="80" y="2" width="70" height="32" rx="8" fill="none" stroke="#1C1C1E" stroke-width="4"/><rect x="86" y="8" width="44" height="20" rx="4" fill="#2FB36B"/></g>`;
+    const hdr = (title, col, sub) => `<rect x="${sx}" y="${sy + 110}" width="${sw}" height="${sub ? 190 : 140}" fill="${col}"/><text x="${CX}" y="${sy + 200}" text-anchor="middle" font-family="Arial Black,Arial" font-size="56" fill="#FFFFFF">${title}</text>${sub ? `<text x="${CX}" y="${sy + 262}" text-anchor="middle" font-family="Segoe UI,Arial" font-weight="700" font-size="34" fill="#FFFFFF" opacity=".85">${sub}</text>` : ''}`;
+    const btn = (x, y, w2, h2, label, col, tcol, fs = 40) => `<rect x="${x}" y="${y}" width="${w2}" height="${h2}" rx="${Math.min(30, h2 / 2)}" fill="${col}"/><text x="${x + w2 / 2}" y="${y + h2 / 2 + fs * .36}" text-anchor="middle" font-family="Arial Black,Arial" font-size="${fs}" fill="${tcol}">${label}</text>`;
+    const y0 = sy + 340, L = sx + 60, Wc = sw - 120;
+    if (v === 'load') {
+      s += hdr('LOAD', '#E8871E');
+      s += `<text x="${L}" y="${y0}" font-family="Segoe UI,Arial" font-weight="700" font-size="34" fill="#6B7280">Mobile number</text>` + `<rect x="${L}" y="${y0 + 24}" width="${Wc}" height="110" rx="20" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="4"/><text x="${L + 40}" y="${y0 + 96}" font-family="Arial Black,Arial" font-size="48" fill="#1C1C1E">${txt || '0917 123 4567'}</text>`;
+      const am = ['₱20', '₱50', '₱100', '₱300', '₱500', '₱1000'];
+      am.forEach((a, i) => { const bx = L + (i % 3) * (Wc / 3) + 8, by = y0 + 200 + ((i / 3) | 0) * 170; s += btn(bx, by, Wc / 3 - 16, 140, a, i === 2 ? '#E8871E' : '#FFFFFF', i === 2 ? '#FFFFFF' : '#1C1C1E', 48) + (i === 2 ? '' : `<rect x="${bx}" y="${by}" width="${Wc / 3 - 16}" height="140" rx="30" fill="none" stroke="#D1D5DB" stroke-width="4"/>`); });
+      s += `<text x="${L}" y="${y0 + 640}" font-family="Segoe UI,Arial" font-weight="700" font-size="34" fill="#6B7280">Promo</text>` + [0, 1].map(i => `<rect x="${L}" y="${y0 + 670 + i * 150}" width="${Wc}" height="130" rx="22" fill="#FFF4E5"/><text x="${L + 36}" y="${y0 + 750 + i * 150}" font-family="Arial Black,Arial" font-size="40" fill="#9C5A10">${['GIGA 99 · 8GB + unli TikTok', 'ALL NET 50 · 3 days'][i]}</text>`).join('');
+      s += btn(L, sy + sh - 260, Wc, 140, 'BUY LOAD', '#E8871E', '#FFFFFF', 52);
+    } else if (v === 'wallet' || v === 'bank') {
+      const col = v === 'wallet' ? '#2E6FE0' : '#1F8A5B';
+      s += hdr(v === 'wallet' ? 'E-WALLET' : 'BANK', col);
+      s += `<rect x="${L}" y="${y0 - 40}" width="${Wc}" height="300" rx="34" fill="${col}"/><text x="${L + 50}" y="${y0 + 40}" font-family="Segoe UI,Arial" font-weight="700" font-size="36" fill="#FFFFFF" opacity=".85">Available balance</text><text x="${L + 50}" y="${y0 + 160}" font-family="Arial Black,Arial" font-size="92" fill="#FFFFFF">${txt || '₱1,250.00'}</text>`;
+      ['Send', 'Load', 'Pay', 'Bills'].forEach((a, i) => { const bx = L + i * (Wc / 4) + Wc / 8; s += `<circle cx="${bx}" cy="${y0 + 400}" r="64" fill="#E8EEFC"/><text x="${bx}" y="${y0 + 515}" text-anchor="middle" font-family="Segoe UI,Arial" font-weight="700" font-size="34" fill="#1C1C1E">${a}</text>`; });
+      s += `<text x="${L}" y="${y0 + 640}" font-family="Arial Black,Arial" font-size="40" fill="#1C1C1E">Transactions</text>` + [['Load', '-₱100.00'], ['Fishball', '-₱20.00'], ['Cash in', '+₱500.00'], ['Meralco', '-₱1,320.00']].map(([a, b2], i) => `<rect x="${L}" y="${y0 + 680 + i * 130}" width="${Wc}" height="110" rx="20" fill="#FFFFFF"/><text x="${L + 40}" y="${y0 + 750 + i * 130}" font-family="Segoe UI,Arial" font-weight="700" font-size="38" fill="#1C1C1E">${a}</text><text x="${L + Wc - 40}" y="${y0 + 750 + i * 130}" text-anchor="end" font-family="Arial Black,Arial" font-size="38" fill="${b2.startsWith('+') ? '#1F8A5B' : '#C0392B'}">${b2}</text>`).join('');
+    } else if (v === 'chat') {
+      s += `<rect x="${sx}" y="${sy + 110}" width="${sw}" height="150" fill="#FFFFFF"/><circle cx="${sx + 110}" cy="${sy + 185}" r="50" fill="#9AA0A6"/><text x="${sx + 190}" y="${sy + 175}" font-family="Arial Black,Arial" font-size="44" fill="#1C1C1E">${txt || 'Unknown'}</text><text x="${sx + 190}" y="${sy + 225}" font-family="Segoe UI,Arial" font-weight="700" font-size="30" fill="#2FB36B">Active now</text><rect x="${sx}" y="${sy + 258}" width="${sw}" height="4" fill="#E5E7EB"/>`;
+      s += `<rect x="${sx + 30}" y="${sy + sh - 170}" width="${sw - 60}" height="110" rx="55" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="4"/><text x="${sx + 90}" y="${sy + sh - 100}" font-family="Segoe UI,Arial" font-size="38" fill="#9CA3AF">Aa</text>`;
+    } else if (v === 'call') {
+      s += `<rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="88" fill="#1F2937"/><circle cx="${CX}" cy="${sy + 520}" r="170" fill="#4B5563"/><circle cx="${CX}" cy="${sy + 470}" r="62" fill="#9CA3AF"/><path d="M${CX - 110} ${sy + 640} a110 90 0 0 1 220 0Z" fill="#9CA3AF"/>`;
+      s += `<text x="${CX}" y="${sy + 820}" text-anchor="middle" font-family="Arial Black,Arial" font-size="72" fill="#FFFFFF">${txt || 'Unknown Number'}</text><text x="${CX}" y="${sy + 900}" text-anchor="middle" font-family="Segoe UI,Arial" font-weight="700" font-size="40" fill="#9CA3AF">Incoming call…</text>`;
+      s += `<g class="pulse"><circle cx="${CX - 230}" cy="${sy + sh - 330}" r="95" fill="#E5484D"/></g><path d="M${CX - 270} ${sy + sh - 320} q40 -30 80 0" stroke="#FFFFFF" stroke-width="16" fill="none" stroke-linecap="round"/><g class="pulse" style="animation-delay:.4s"><circle cx="${CX + 230}" cy="${sy + sh - 330}" r="95" fill="#30A46C"/></g><path d="M${CX + 190} ${sy + sh - 340} q40 30 80 0" stroke="#FFFFFF" stroke-width="16" fill="none" stroke-linecap="round"/>`;
+    } else if (v === 'search' || v === 'news') {
+      s += `<rect x="${L}" y="${sy + 130}" width="${Wc}" height="110" rx="55" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="4"/><circle cx="${L + 60}" cy="${sy + 185}" r="20" fill="none" stroke="#6B7280" stroke-width="6"/><text x="${L + 110}" y="${sy + 200}" font-family="Segoe UI,Arial" font-weight="700" font-size="38" fill="#1C1C1E">${v === 'search' ? (txt || 'search…') : 'Balita'}</text>`;
+      if (v === 'news') s += `<rect x="${L}" y="${sy + 300}" width="${Wc}" height="420" rx="24" fill="#CBD5E1"/><text x="${L}" y="${sy + 800}" font-family="Arial Black,Arial" font-size="50" fill="#C0392B">BREAKING</text><foreignObject x="${L}" y="${sy + 830}" width="${Wc}" height="300"><div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Arial Black,Arial;font-size:58px;line-height:1.1;color:#1C1C1E">${txt || 'Headline dito'}</div></foreignObject>`;
+      else s += [0, 1, 2, 3].map(i => `<text x="${L}" y="${sy + 340 + i * 250}" font-family="Segoe UI,Arial" font-size="30" fill="#2FB36B">www.example${i + 1}.ph</text><rect x="${L}" y="${sy + 365 + i * 250}" width="${Wc * (.9 - i * .1)}" height="36" rx="8" fill="#2E5AAC" opacity=".85"/><rect x="${L}" y="${sy + 420 + i * 250}" width="${Wc}" height="22" rx="6" fill="#D1D5DB"/><rect x="${L}" y="${sy + 456 + i * 250}" width="${Wc * .7}" height="22" rx="6" fill="#D1D5DB"/>`).join('');
+    } else {
+      s += `<rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="88" fill="#3B5BDB"/><rect x="${sx}" y="${sy}" width="${sw}" height="${sh}" rx="88" fill="#7048E8" opacity=".5"/><text x="${CX}" y="${sy + 330}" text-anchor="middle" font-family="Segoe UI,Arial" font-size="150" fill="#FFFFFF">9:41</text>`;
+      const ic = ['#2FB36B', '#E8871E', '#2E6FE0', '#E5484D', '#FFC93C', '#9D4EDD', '#14B8A6', '#F472B6', '#64748B', '#22C55E', '#0EA5E9', '#F97316'];
+      ic.forEach((c2, i) => { const bx = L + 30 + (i % 4) * ((Wc - 60) / 4), by = sy + 520 + ((i / 4) | 0) * 230; s += `<rect x="${bx}" y="${by}" width="150" height="150" rx="38" fill="${c2}"/>`; });
+    }
+    return { base: s, lights };
+  },
   plain(n, color) {
     const c = color || (n ? '#20243A' : '#F6E7C8');
     let s = R(0, 0, W, H, c);
@@ -1571,7 +1614,9 @@ function creatureSVG(c, st) {
 
 /* ========== story parser + validator ========== */
 const GLOBAL_KEYS = ['FORMAT', 'TITLE', 'PILLAR', 'ENDING', 'HOOK', 'NOTES', 'AUTHOR'];
-const SCENE_KEYS = ['BG', 'TIME', 'BGIMG', 'CAST', 'TURO', 'NARRATE', 'NOTE', 'MODE'];
+const SCENE_KEYS = ['BG', 'TIME', 'BGIMG', 'CAST', 'TURO', 'NARRATE', 'NOTE', 'MODE', 'TRANS'];
+const TRANSITIONS = ['auto', 'whip', 'slide', 'zoom', 'iris', 'flash', 'glitch', 'fade', 'cut'];
+const PHONE_SCREENS = ['load', 'wallet', 'chat', 'call', 'bank', 'search', 'news', 'home'];
 const ACTIONS = {
   walkin: { d: 'Papasok mula sa gilid papunta sa slot', a: '[slot] [from:left|right]' },
   walkout: { d: 'Lalabas sa gilid', a: '[left|right]' },
@@ -1630,7 +1675,7 @@ const ACTION_ALIAS = { imahinasyon: 'imagine', naiisip: 'imagine', nangangarap: 
   tulog: 'sleep', natulog: 'sleep', natutulog: 'sleep', matulog: 'sleep', tigil: 'stop', tumigil: 'stop',
   yakap: 'hug', yumakap: 'hug', apir: 'highfive', kamay: 'handshake', kamayan: 'handshake', makipagkamay: 'handshake',
   pumasok: 'walkin', lumabas: 'walkout', umalis: 'walkout', lumakad: 'moveto', pumunta: 'moveto', kumaway: 'wave', tumalon: 'jump', umiling: 'shake', tumango: 'nod', sumayaw: 'dance', tumuro: 'point', ituro: 'point', sumigaw: 'shout', nagsabi: 'say', humawak: 'hold', tumawag: 'call', nagulat: 'shock', humarap: 'turn', pasok: 'walkin', enter: 'walkin', labas: 'walkout', alis: 'walkout', exit: 'walkout', lakad: 'moveto', punta: 'moveto', move: 'moveto', go: 'moveto', lumitaw: 'show', appear: 'show', wala: 'hide', disappear: 'hide', harap: 'turn', expr: 'face', mukha: 'face', kaway: 'wave', talon: 'jump', iling: 'shake', headshake: 'shake', no: 'shake', tango: 'nod', yes: 'nod', sayaw: 'dance', nginig: 'shiver', turo: 'point', yay: 'cheer', hands: 'cheer', kibit: 'shrug', baywang: 'hips', tawag: 'call', phone: 'call', hawak: 'hold', normal: 'rest', idle: 'rest', gulatin: 'shock', simbolo: 'mark', sabi: 'say', sabe: 'say', bubble: 'say', speak: 'say', talk: 'say', isip: 'think', thought: 'think', sigaw: 'shout', yell: 'shout', tahimik: 'clear' };
-const GLOBAL_CMDS = ['title', 'caption', 'clear', 'camera', 'prop', 'flash', 'pause', 'pass', 'wake', 'siren', 'fx'];
+const GLOBAL_CMDS = ['title', 'caption', 'clear', 'camera', 'prop', 'flash', 'pause', 'pass', 'wake', 'siren', 'fx', 'msg'];
 const FX_KINDS = ['money', 'sparkle', 'confetti', 'hearts', 'rain', 'speed'];
 const PASSERS = ['police', 'ambulance', 'firetruck', 'jeep', 'blackcar', 'car', 'motor'];
 const GLOBAL_ALIAS = { gising: 'wake', pop: 'wake', poof: 'wake', balik: 'wake', wangwang: 'siren', sirena: 'siren',  dumaan: 'pass', dadaan: 'pass', drive: 'pass',  cam: 'camera', subtitle: 'caption', text: 'caption', wait: 'pause', '-': 'pause', hinto: 'pause', gamit: 'prop' };
@@ -1653,6 +1698,8 @@ const RECIPES = {
   imagine: { d: 'Nag-iimagine: thought cloud na may larawan (sunod na scene: MODE: dream)', t: ['{a} imagine {i}', '{a} kilig'], i: 'phone' },
   caught: { d: 'Huli! Pulis na may ID, wangwang, gulat (pang-dream o totoo)', t: ['pulis walkIn {s}', 'prop badge at:center', 'siren', '{a} shock'], s: 'right' },
   wakeup: { d: 'Gising sa realidad: POP!, pawis, hingal', t: ['wake', '{a} worried', '{a} mark sweat'] },
+  topup: { d: 'Hawak ang phone, tumingin, tapos zoom papasok (sunod na scene: BG: phone load)', t: ['{a} hold phone', '{a} look down', 'camera into {a}'] },
+  checkphone: { d: 'Tinitingnan ang phone, tapos zoom papasok (sunod: BG: phone chat/wallet/news)', t: ['{a} text', 'camera into {a}'] },
   surrender: { d: 'Isinusuko ang briefcase (iniwan sa mesa)', t: ['{a} rest', 'prop table at:{s} y:ground', 'prop briefcase at:{s} y:table', '{a} happy', 'prop check at:{s}'], s: 'center' }
 };
 function expandRecipe(rest, amap) {
@@ -1695,9 +1742,11 @@ function parseStory(text) {
       if (key === 'BG') {
         const parts = val.split(/\s+/); const b = resolveBg(parts[0]);
         if (!b) { const sg = suggest(parts[0].toLowerCase(), BG_LIST); iss(ln, 'error', `Unknown BG "${parts[0]}".${sg ? ` Did you mean "${sg}"?` : ''} Pagpipilian: ${BG_LIST.join(', ')}`); }
+        else if (b === 'phone') { sc.bg = b; sc.bgSet = true; const v = (parts[1] || 'home').toLowerCase(); sc.phone = PHONE_SCREENS.includes(v) ? v : ({ gcash: 'wallet', maya: 'wallet', ewallet: 'wallet', message: 'chat', messenger: 'chat', text: 'chat', sms: 'chat', tawag: 'call', calling: 'call', google: 'search', balita: 'news', topup: 'load', eload: 'load' })[v]; if (!sc.phone) { iss(ln, 'warn', `phone screen "${v}"? → ${PHONE_SCREENS.join(', ')}`); sc.phone = 'home'; } sc.phoneTxt = parts.slice(2).join(' '); }
         else { sc.bg = b; sc.bgSet = true; if (parts[1] && /^#?[0-9a-f]{3,6}$/i.test(parts[1])) sc.bgColor = parts[1].startsWith('#') ? parts[1] : '#' + parts[1]; if (parts[1] && /night|gabi/i.test(parts[1])) sc.time = 'night'; }
         return;
       }
+      if (key === 'TRANS') { const v = val.toLowerCase().trim(); const t = ({ swipe: 'whip', zoomin: 'zoom', circle: 'iris', bilog: 'iris', white: 'flash', puti: 'flash', dissolve: 'fade', none: 'cut', wala: 'cut' })[v] || v; if (!TRANSITIONS.includes(t)) iss(ln, 'warn', `TRANS "${val}"? → ${TRANSITIONS.join(', ')}`); else sc.trans = t; return; }
       if (key === 'MODE') { sc.mode = /dream|imagin|isip|panaginip|pangarap|daydream/i.test(val) ? 'dream' : 'real'; return; }
       if (key === 'TIME') { const v = val.toLowerCase(); if (/night|gabi|evening/.test(v)) sc.time = 'night'; else if (/day|araw|umaga|morning|tanghali/.test(v)) sc.time = 'day'; else iss(ln, 'warn', `TIME "${val}" — gamitin ang day o night.`); return; }
       if (key === 'BGIMG') { sc.bgimg = val; return; }
@@ -1758,7 +1807,7 @@ function parseAction(rest, ln, amap, iss) {
     const { pos, kv, text } = splitArgs(toks.slice(1));
     const a = { g: head, line: ln };
     if (head === 'title' || head === 'caption') { if (text == null && !pos.length) { iss(ln, 'error', `${head} kailangan ng text sa "quotes".`); return null; } a.text = text != null ? text : pos.join(' '); if (a.text.length > 60) iss(ln, 'warn', `${head} masyadong mahaba (${a.text.length} chars) — liliit ang font.`); return a; }
-    if (head === 'clear') { const w = (pos[0] || 'bubble').toLowerCase(); const ok = { bubble: 'bubble', bubbles: 'bubble', title: 'title', caption: 'caption', props: 'props', prop: 'props', all: 'all', lahat: 'all', camera: 'camera' }[w]; if (!ok) { iss(ln, 'error', `clear ${w}? Pagpipilian: bubble, title, caption, props, all`); return null; } a.what = ok; return a; }
+    if (head === 'clear') { const w = (pos[0] || 'bubble').toLowerCase(); const ok = { bubble: 'bubble', bubbles: 'bubble', title: 'title', caption: 'caption', msg: 'msgs', msgs: 'msgs', chat: 'msgs', props: 'props', prop: 'props', all: 'all', lahat: 'all', camera: 'camera' }[w]; if (!ok) { iss(ln, 'error', `clear ${w}? Pagpipilian: bubble, title, caption, props, all`); return null; } a.what = ok; return a; }
     if (head === 'camera') {
       const sub = (pos[0] || '').toLowerCase();
       if (sub === 'zoom') { const t = amap[(pos[1] || '').toLowerCase()]; if (!t) { iss(ln, 'error', `camera zoom <actor> — hindi kilala si "${pos[1] || ''}".`); return null; } a.sub = 'zoom'; a.target = t; a.z = clamp(parseFloat(pos[2] || kv.x || 1.4) || 1.4, 1.1, 2.2); return a; }
@@ -1766,9 +1815,11 @@ function parseAction(rest, ln, amap, iss) {
       if (sub === 'pan') { const d = (pos[1] || 'right').toLowerCase(); a.sub = 'pan'; a.dx = /^(l|left|kaliwa)$/.test(d) ? -1 : /^(c|center|gitna)$/.test(d) ? 0 : 1; a.amt = clamp(parseFloat(pos[2]) || 900, 200, 2000); return a; }
       if (sub === 'closeup' || sub === 'close') { const t = amap[(pos[1] || '').toLowerCase()]; if (!t) { iss(ln, 'error', 'camera closeup <actor>'); return null; } a.sub = 'closeup'; a.target = t; return a; }
       if (sub === 'low' || sub === 'hero') { a.sub = 'low'; return a; }
+      if (sub === 'into' || sub === 'pasok' || sub === 'insert') { const t = amap[(pos[1] || '').toLowerCase()]; if (!t) { iss(ln, 'error', 'camera into <actor> — zoom papasok sa hawak niya (hal. phone)'); return null; } a.sub = 'into'; a.target = t; return a; }
       if (['shake', 'yugyog'].includes(sub)) { a.sub = 'shake'; return a; }
       iss(ln, 'error', 'camera zoom <actor> | closeup <actor> | pan left|right|center | low | reset | shake'); return null;
     }
+    if (head === 'msg') { const side = /^(me|ako|right|kanan|sent)$/i.test(pos[0] || '') ? 'me' : 'them'; if (text == null) { iss(ln, 'error', 'msg me|them "text" — chat bubble sa phone screen'); return null; } a.side = side; a.text = text; return a; }
     if (head === 'fx') { const k = ({ pera: 'money', cash: 'money', kislap: 'sparkle', stars: 'sparkle', puso: 'hearts', heart: 'hearts', ulan: 'rain', bilis: 'speed' })[(pos[0] || '').toLowerCase()] || (pos[0] || '').toLowerCase(); if (!FX_KINDS.includes(k)) { iss(ln, 'error', `fx <${FX_KINDS.join('|')}>`); return null; } a.kind = k; return a; }
     if (head === 'pass') { const nm = resolveProp(pos[0]); if (!nm || !PASSERS.includes(nm)) { iss(ln, 'error', `pass <${PASSERS.join('|')}> [left|right]`); return null; } a.name = nm; a.dir = /^(l|left|kaliwa)$/i.test(pos[1] || '') ? -1 : 1; return a; }
     if (head === 'prop') {
@@ -1835,7 +1886,7 @@ function parseAction(rest, ln, amap, iss) {
 function newActor(id, x) { return { id, x, vis: true, facing: x < CX - 1 ? 1 : x > CX + 1 ? -1 : 0, expr: 'neutral', ov: {}, armL: 'rest', armR: 'rest', hold: null, stance: 'stand', activity: null, cover: null, temp: null, look: 'front' }; }
 function freeX(st) { const used = Object.values(st.actors).filter(a => a.vis).map(a => a.x); for (const s of ['center', 'left', 'right', 'midleft', 'midright']) { if (!used.some(x => Math.abs(x - SLOTS[s]) < 150)) return SLOTS[s]; } return CX; }
 function initState(sc) {
-  const st = { actors: {}, props: {}, title: '', caption: '', bubble: null, cam: { z: 1, x: CX, y: 960 } };
+  const st = { actors: {}, props: {}, title: '', caption: '', bubble: null, msgs: [], cam: { z: 1, x: CX, y: 960 } };
   sc.cast.forEach(({ id, slot }) => { if (CAST[id]) st.actors[id] = newActor(id, SLOTS[slot]); });
   return st;
 }
@@ -1850,6 +1901,7 @@ function applyAction(st, act, ev) {
         if (act.what === 'bubble' || act.what === 'all') st.bubble = null;
         if (act.what === 'title' || act.what === 'all') st.title = '';
         if (act.what === 'caption' || act.what === 'all') st.caption = '';
+        if (act.what === 'msgs' || act.what === 'all') st.msgs = [];
         if (act.what === 'props' || act.what === 'all') { Object.keys(st.props).forEach(n => push({ k: 'prophide', p: st.props[n] })); st.props = {}; }
         if (act.what === 'camera' || act.what === 'all') st.cam = { z: 1, x: CX, y: 960 };
         break;
@@ -1859,6 +1911,7 @@ function applyAction(st, act, ev) {
         else if (act.sub === 'pan') st.cam = { z: 1, x: CX + act.dx * act.amt, y: 960 };
         else if (act.sub === 'closeup') { const a = st.actors[act.target]; if (a) { const c = CAST[a.id]; st.cam = { z: 2.3, x: a.x, y: GROUND + SCALE * c.height * (headTopLocal(a) + 46) }; } }
         else if (act.sub === 'low') st.cam = { z: 1.22, x: CX, y: 870 };
+        else if (act.sub === 'into') push({ k: 'into', id: act.target });
         else push({ k: 'camshake' });
         break;
       case 'prop':
@@ -1870,6 +1923,7 @@ function applyAction(st, act, ev) {
       case 'wake': st.bubble = null; push({ k: 'wake' }); break;
       case 'siren': push({ k: 'siren' }); break;
       case 'fx': push({ k: 'fx', kind: act.kind }); break;
+      case 'msg': st.msgs.push({ side: act.side, text: act.text }); push({ k: 'msg' }); break;
     }
     return;
   }
@@ -2115,8 +2169,10 @@ const Stage = {
     const bgKey = sc.bg + '|' + sc.time + '|' + sc.bgimg + '|' + sc.bgColor + '|' + s;
     const enteringDream = sceneChange && sc.mode === 'dream' && this.lastMode !== 'dream';
     const leavingDream = sceneChange && sc.mode !== 'dream' && this.lastMode === 'dream';
-    if (this.renderedBg !== bgKey) { this.renderBg(sc); this.renderedBg = bgKey; if (sceneChange && !enteringDream && !leavingDream) { if (motionLv()) this.whip(s); else this.fadeIn(); } }
-    if (sceneChange) { this.pushIn(s); $('#fxL').innerHTML = ''; }
+    if (sceneChange) { $('#punchG').getAnimations().forEach(x => x.cancel()); $('#fadeL').getAnimations().forEach(x => x.cancel()); }
+    if (this.renderedBg !== bgKey) { this.renderBg(sc); this.renderedBg = bgKey; if (sceneChange && !enteringDream && !leavingDream) this.transition(sc, s); }
+    else if (sceneChange && !enteringDream && !leavingDream) this.transition(sc, s);
+    if (sceneChange) { this.pushIn(s); $('#fxL').innerHTML = ''; this.pendingInto = false; }
     $('#dreamL').innerHTML = sc.mode === 'dream' ? dreamFrame() : '';
     if (enteringDream) { const ox = CX + 120, oy = 620; $('#shakeG').animate([{ transform: `translate(${ox}px,${oy}px) scale(.1) translate(${-ox}px,${-oy}px)`, opacity: 0 }, { opacity: 1, offset: .35 }, { transform: 'none', opacity: 1 }], { duration: 1100, easing: 'cubic-bezier(.2,.8,.2,1)' }); $('#dreamL').animate([{ opacity: 0 }, { opacity: 1 }], { duration: 900 }); }
     if (leavingDream) { this.fadeIn(); burstFX(CX, 820, 'POOF!'); }
@@ -2241,6 +2297,15 @@ const Stage = {
         case 'camshake': { const k = e.soft ? .4 : 1; A($('#shakeG'), [...Array(10)].map((_, i) => ({ transform: i === 9 ? 'translate(0,0)' : `translate(${(i % 2 ? 1 : -1) * (24 - i * 2) * k}px,${(i % 3 - 1) * 10 * k}px)` })), { duration: 600, delay: (e.soft ? 260 : 0) }); break; }
         case 'wake': A($('#flashL'), [{ opacity: .9 }, { opacity: 0 }], { duration: 600 }); burstFX(CX, 820, 'POP!'); A($('#shakeG'), [...Array(8)].map((_, i) => ({ transform: i === 7 ? 'none' : `translate(${(i % 2 ? 1 : -1) * 18}px,0)` })), { duration: 450 }); break;
         case 'siren': sirenFX(); break;
+        case 'into': {
+          const a = st.actors[e.id]; if (!a) break; const c = CAST[a.id], k = SCALE * c.height, side = (a.facing || 0) >= 0 ? 1 : -1;
+          const hx = a.x + side * 84 * k, hy = GROUND - 123 * k; const z = st.cam.z, P = { x: CX + z * (hx - st.cam.x), y: 960 + z * (hy - st.cam.y) };
+          const T = s2 => `translate(${P.x}px,${P.y}px) scale(${s2}) translate(${-P.x}px,${-P.y}px)`;
+          $('#punchG').getAnimations().forEach(x => x.cancel());
+          $('#punchG').animate([{ transform: T(1) }, { transform: T(1.25), offset: .35 }, { transform: T(7) }], { duration: 900, delay: d + 250, easing: 'cubic-bezier(.6,0,.9,.5)', fill: 'forwards' });
+          $('#fadeL').animate([{ opacity: 0 }, { opacity: 0, offset: .75 }, { opacity: .6 }], { duration: 900, delay: d + 250, fill: 'forwards' });
+          this.pendingInto = true; break;
+        }
         case 'fx': this.particles(e.kind); break;
         case 'pass': {
           const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); const k = FAR_SIZE[e.name] || 4.4;
@@ -2267,6 +2332,34 @@ const Stage = {
     if (!m) { el.style.transform = ''; return; }
     const dx = (si % 2 ? 1 : -1) * 34 * m, z = 1 + .055 * m;
     el.animate([{ transform: 'none' }, { transform: `translate(${CX}px,960px) scale(${z}) translate(${-CX + dx}px,-960px)` }], { duration: 9000, easing: 'cubic-bezier(.25,.6,.3,1)', fill: 'forwards' });
+  },
+  transition(sc, si) {
+    const m = motionLv();
+    let t = sc.trans || 'auto';
+    if (this.pendingInto) t = 'zoom';
+    if (t === 'auto') t = sc.bg === 'phone' ? 'zoom' : ['whip', 'slide', 'whip', 'iris', 'whip', 'glitch'][si % 6];
+    if (!m && t !== 'cut') t = 'fade';
+    const el = $('#whipG'), fade = $('#fadeL');
+    if (t === 'cut') return;
+    if (t === 'fade') return this.fadeIn();
+    if (t === 'whip') return this.whip(si);
+    if (t === 'slide') { el.animate([{ transform: `translateY(${H * .55 * m}px)` }, { transform: 'none' }], { duration: 380, easing: 'cubic-bezier(.15,.85,.25,1)' }); fade.animate([{ opacity: .5 }, { opacity: 0 }], { duration: 260 }); return; }
+    if (t === 'zoom') { const T = k => `translate(${CX}px,960px) scale(${k}) translate(${-CX}px,-960px)`; el.animate([{ transform: T(2.4) }, { transform: T(1) }], { duration: 480, easing: 'cubic-bezier(.15,.85,.25,1)' }); fade.animate([{ opacity: .9 }, { opacity: 0 }], { duration: 360, easing: 'ease-out' }); return; }
+    if (t === 'flash') { const f = $('#flashL'); f.setAttribute('fill', '#fff'); f.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 420, easing: 'ease-out' }); return; }
+    if (t === 'iris') {
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.innerHTML = `<g transform="translate(${CX},960)"><g class="irisS"><path fill-rule="evenodd" fill="#0B0C10" d="M-20000 -20000 H20000 V20000 H-20000Z M100 0 A100 100 0 1 0 -100 0 A100 100 0 1 0 100 0Z"/></g></g>`;
+      $('#partL').appendChild(g);
+      g.querySelector('.irisS').animate([{ transform: 'scale(.2)' }, { transform: 'scale(16)' }], { duration: 560, easing: 'cubic-bezier(.5,0,.3,1)', fill: 'forwards' }).onfinish = () => g.remove();
+      return;
+    }
+    if (t === 'glitch') {
+      el.animate([...Array(8)].map((_, i) => ({ transform: i === 7 ? 'none' : `translate(${(i % 2 ? 1 : -1) * (40 - i * 5) * m}px,${(i % 3 - 1) * 12}px)` })), { duration: 300 });
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); const r = Math.random;
+      g.innerHTML = [...Array(9)].map(() => `<rect x="${SAFE_L}" y="${(r() * H) | 0}" width="${SAFE_R - SAFE_L}" height="${(20 + r() * 90) | 0}" fill="${['#FF2D55', '#00E5FF', '#FFFFFF'][(r() * 3) | 0]}" opacity=".35" style="mix-blend-mode:screen"/>`).join('');
+      $('#partL').appendChild(g); g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 320, fill: 'forwards' }).onfinish = () => g.remove();
+      return;
+    }
   },
   whip(si) {
     const m = motionLv(), dir = si % 2 ? -1 : 1, el = $('#whipG');
@@ -2453,6 +2546,16 @@ const Stage = {
     }
     if (newC && !m) { const g = L.querySelector('.captionG'); g && g.animate([{ transform: 'translateY(200px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }], { duration: 420, easing: 'ease-out', id: 'cs' }); }
     if (newC && m) { const g = L.querySelector('.captionG'); g && g.querySelector('rect').animate([{ opacity: 0, transform: 'scaleX(.2)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: 'ease-out' }); }
+    if (st.msgs && st.msgs.length) {
+      const sx = SAFE_L + 66, sw = SAFE_R - SAFE_L - 132, top = 360, bottom = H - 260, maxW = sw * .72;
+      const items = st.msgs.map(mg => { const mm = this.measureFO(`<div style="font-family:Segoe UI,Arial,sans-serif;font-weight:600;font-size:44px;line-height:1.25">${esc(mg.text)}</div>`, maxW - 60, 44, 32, 400); return Object.assign({}, mg, { w: mm.w + 60, h: mm.h + 40, fs: mm.fs }); });
+      let y = top; items.forEach(it => { it.y = y; y += it.h + 22; });
+      const shift = Math.max(0, y - bottom);
+      const newM = ev.some(e => e.k === 'msg');
+      const g = items.map((it, i) => { const x = it.side === 'me' ? sx + sw - it.w - 20 : sx + 20, yy = it.y - shift; if (yy < top - 40) return ''; return `<g class="msgG${newM && i === items.length - 1 ? ' newmsg' : ''}" data-x="${it.side === 'me' ? x + it.w : x}" data-y="${yy + it.h}"><rect x="${x}" y="${yy}" width="${it.w}" height="${it.h}" rx="34" fill="${it.side === 'me' ? '#2E6FE0' : '#E5E7EB'}"/><foreignObject x="${x}" y="${yy}" width="${it.w}" height="${it.h}"><div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-family:Segoe UI,Arial,sans-serif;font-weight:600;font-size:${it.fs}px;line-height:1.25;color:${it.side === 'me' ? '#FFFFFF' : '#1C1C1E'};padding:0 30px;box-sizing:border-box">${esc(it.text)}</div></foreignObject></g>`; }).join('');
+      L.insertAdjacentHTML('afterbegin', g);
+      const nm = L.querySelector('.newmsg'); if (nm) { const x = +nm.dataset.x, y2 = +nm.dataset.y; nm.animate([{ transform: `translate(${x}px,${y2}px) scale(.2) translate(${-x}px,${-y2}px)`, opacity: 0 }, { transform: `translate(${x}px,${y2}px) scale(1.05) translate(${-x}px,${-y2}px)`, opacity: 1, offset: .7 }, { transform: 'none' }], { duration: 340, easing: 'ease-out' }); }
+    }
     // count-up ng mga numero (hal. ₱5,000,000)
     let big = false;
     L.querySelectorAll('.cu').forEach(sp => { const to = +sp.dataset.to, pre = sp.dataset.pre, t0 = performance.now(), du = 1200; if (pre && to >= 100000) big = true; const step = () => { const k = Math.min(1, (performance.now() - t0) / du); sp.textContent = pre + fmtNum(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); }; step(); });
@@ -2461,7 +2564,7 @@ const Stage = {
   renderBg(sc) {
     const n = sc.time === 'night';
     const fn = BG[sc.bg] || BG.city;
-    const out = fn(n, sc.bgColor);
+    const out = fn(n, sc.bgColor, sc);
     let base = out.base;
     if (sc.bgimg) {
       base += R(0, 0, W, H, '#14161F') + `<g style="transform-origin:${CX}px 960px" class="kenburns"><image href="${esc(sc.bgimg)}" x="${SAFE_L - 200}" y="-60" width="${SAFE_R - SAFE_L + 400}" height="${H + 120}" preserveAspectRatio="xMidYMid slice"/></g>`;
@@ -2697,6 +2800,8 @@ PILLAR: <pillar>
 ENDING: <tanong sa dulo para sa comments>
 === SCENE 01 | <short title> ===
 BG: <bg>            TIME: day|night       BGIMG: <file.png> (optional)      MODE: dream (optional — eksena sa isip ng karakter)
+TRANS: auto|whip|slide|zoom|iris|flash|glitch|fade|cut   (optional — transition papasok sa scene; auto = iba-iba)
+BG: phone <load|wallet|chat|call|bank|search|news|home> [text]   (buong screen = screen ng cellphone; hal. BG: phone chat Mr. Hale · BG: phone wallet ₱25.00 · BG: phone call Unknown Number)
 CAST: <actor>@<slot> <actor>@<slot>     (mga nasa stage pagbukas ng scene)
 > narration (Taglish, binabasa ko habang nasa simula ng scene)
 TURO: <cue kung saan ituturo ang laser> (optional)
@@ -2734,6 +2839,8 @@ GLOBAL (walang actor):
   prop <name> [at:slot] [y:air|ground|far] [size:s|m|l] | prop <name> hide
     y:air = lumulutang na icon (pang-explain) · y:ground = nasa sahig sa harap (natural na laki) · y:far = nasa kalsada/likod (kotse, jeep, motor, bahay)
   pass <police|ambulance|firetruck|jeep|blackcar|car|motor> [left|right] — dadaan ang sasakyan sa kalsada sa likod (may wangwang ang pulis/ambulansya/bumbero)
+  INSERT SHOT: camera into <actor> → zoom papasok sa hawak niyang phone/bagay; ang SUSUNOD na scene ay dapat 'BG: phone ...' (o anumang close-up), at kusang zoom-in ang transition
+  msg me|them "text" — chat bubble sa phone screen (me = asul sa kanan, them = gray sa kaliwa) · clear msgs
   wake — gising mula sa dream (POP!)   siren — wangwang na pula/asul sa screen
   fx money|sparkle|confetti|hearts|rain|speed — particles sa screen (hal. umuulan ng pera)
   (AWTOMATIKO na ang camera motion, transitions, kinetic text, count-up ng pera, at suspicion meter — hindi na kailangang isulat)
