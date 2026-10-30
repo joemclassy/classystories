@@ -371,7 +371,7 @@ TURO: ituro ang audience
 <script>
 'use strict';
 const SOURCE_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-const ENGINE_VERSION = '1.7';
+const ENGINE_VERSION = '1.8';
 const IS_SCRIPT = location.hash.replace('#', '').toLowerCase() === 'script';
 const IS_MOBILE = /[?&]mobile=1/.test(location.search) || (/[?&]mobile=0/.test(location.search) ? false : (matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) < 900));
 
@@ -3019,7 +3019,7 @@ const Voice = {
     const bin = atob(j.audio_base64 || ''); const u8 = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
     const al = j.alignment || j.normalized_alignment || {};
     const starts = al.character_start_times_seconds || [], ends = al.character_end_times_seconds || [];
-    return { blob: new Blob([u8], { type: 'audio/mpeg' }), starts, n: starts.length, tlen: text.length, dur: ends.length ? ends[ends.length - 1] : 0 };
+    return { blob: new Blob([u8], { type: 'audio/mpeg' }), starts, ends, n: starts.length, tlen: text.length, dur: ends.length ? ends[ends.length - 1] : 0 };
   },
   async storyStatus() { const sc = this.script(); let ok = 0; for (const ch of sc.chunks) if (await this.getClip(this.chunkKey(ch.text))) ok++; return { ok, total: sc.chunks.length, chars: sc.chars }; },
   async generateAll() {
@@ -3052,7 +3052,7 @@ const Voice = {
     chunkTimes.forEach(ct => ct.segs.forEach(sg => { anchor[key(sg.si, sg.k)] = Math.max(0, sg.t - 0.12); }));
     const list = sc.steps.map(st => ({ si: st.si, k: st.k, t: anchor[key(st.si, st.k)] }));
     if (list.length && list[0].t == null) list[0].t = 0;
-    const endT = total + 0.9;
+    const endT = total + 0.25;
     for (let i = 0; i < list.length; i++) {
       if (list[i].t != null) continue;
       let a = i - 1; while (a >= 0 && list[a].t == null) a--;
@@ -3064,6 +3064,18 @@ const Voice = {
     for (let i = 1; i < list.length; i++) if (list[i].t < list[i - 1].t) list[i].t = list[i - 1].t;
     return list;
   },
+  skips(r) {
+    if (this.cfg.tight === false || !r || !r.starts || r.n < 2) return [];
+    const st = r.starts, en = r.ends || [], out = [], keep = 0.16;
+    const lead = st[0] - 0.05; if (lead > 0.12) out.push([0, lead]);
+    for (let i = 0; i < st.length - 1; i++) {
+      const endI = en[i] != null ? en[i] : st[i] + 0.1;
+      const gap = st[i + 1] - endI;
+      if (gap > keep + 0.12) out.push([endI + keep, st[i + 1] - 0.04]);
+    }
+    return out;
+  },
+  cmp(t, sk) { let x = t; for (const r of sk || []) x -= Math.min(Math.max(t - r[0], 0), r[1] - r[0]); return x; },
   timeAt(r, i0) { if (!r || !r.n) return r && r.tlen ? i0 / r.tlen * (r.dur || 0) : 0; const idx = r.n === r.tlen ? i0 : Math.round(i0 / Math.max(1, r.tlen) * (r.n - 1)); return r.starts[Math.min(idx, r.n - 1)] || 0; },
   async buildPlayback() {
     const sc = this.script(), c = this.cfg;
@@ -3071,8 +3083,9 @@ const Voice = {
       const srcs = [], cts = []; let off = 0;
       for (const ch of sc.chunks) {
         const r = await this.getClip(this.chunkKey(ch.text)); if (!r || !r.blob) return { missing: true, sc };
-        const url = URL.createObjectURL(r.blob); let dur = r.dur || 0; if (!dur) dur = await this.probe(url);
-        srcs.push({ src: url, off, dur }); cts.push({ segs: ch.segs.map(sg => ({ si: sg.si, k: sg.k, t: off + this.timeAt(r, sg.i0) })) }); off += dur + 0.05;
+        const url = URL.createObjectURL(r.blob); let dur = await this.probe(url); if (!dur) dur = r.dur || 0;
+        const sk = this.skips(r); const lastEnd = r.ends && r.ends.length ? r.ends[r.ends.length - 1] : (r.dur || dur); if (this.cfg.tight !== false && dur - lastEnd > 0.35) sk.push([lastEnd + 0.2, dur]);
+        srcs.push({ src: url, off, dur, skips: sk }); cts.push({ segs: ch.segs.map(sg => ({ si: sg.si, k: sg.k, t: off + this.cmp(this.timeAt(r, sg.i0), sk) })) }); off += this.cmp(dur, sk) + 0.05;
       }
       return { srcs, list: this.plan(sc, cts, off), total: off };
     }
@@ -3106,7 +3119,6 @@ const Voice = {
       for (let si = fromScene || 0; si < Stage.story.scenes.length && this.playing; si++) await this.playScene(si);
       if (!this.playing) return; Stage.go({ s: Stage.story.scenes.length, k: 0 }); this.playing = false; this.renderBtn(); return;
     }
-    Stage.go({ s: -1, k: 0 }); await this.wait(1800); if (!this.playing) return;
     Stage.t0 = Date.now();
     const list = pb.list; let idx = -1;
     const fire = now => { let j = idx; while (j + 1 < list.length && list[j + 1].t <= now) j++; if (j !== idx) { idx = j; Stage.go({ s: list[j].si, k: list[j].k }); } };
@@ -3118,14 +3130,15 @@ const Voice = {
         const a = this.el; a.src = src.src; this.audio = a; let done = false;
         const fin = () => { if (done) return; done = true; res(); };
         a.onended = fin; a.onerror = fin;
-        const tick = () => { if (done || !this.playing) return; fire(src.off + (a.currentTime || 0)); requestAnimationFrame(tick); };
+        const sk = src.skips || [];
+        const tick = () => { if (done || !this.playing) return; const t = a.currentTime || 0; for (const r of sk) { if (t >= r[0] && t < r[1] - 0.02) { if (r[1] >= src.dur - 0.01) { a.pause(); fin(); return; } a.currentTime = r[1]; break; } } fire(src.off + this.cmp(a.currentTime || 0, sk)); requestAnimationFrame(tick); };
         const p = a.play(); if (p && p.catch) p.catch(fin); requestAnimationFrame(tick);
       });
     }
     if (!this.playing) return;
     const t0 = performance.now(), last = pb.total;
-    while (this.playing && idx < list.length - 1) { await this.wait(60); fire(last + (performance.now() - t0) / 1000); }
-    await this.wait(900); if (!this.playing) return;
+    while (this.playing && idx < list.length - 1) { await this.wait(30); fire(last + (performance.now() - t0) / 1000); }
+    if (!this.playing) return;
     Stage.go({ s: Stage.story.scenes.length, k: 0 });
     this.playing = false; this.renderBtn();
   },
@@ -3206,11 +3219,13 @@ ${scs.map((sc, i) => `<tr><td>${i + 1}</td><td class="mono">${this.fname(i)}</td
 <div class="row"><label>Voice ID</label><input class="in" id="vVoice" value="${esc(c.voiceId)}" style="flex:1" placeholder="Galing sa ElevenLabs → Voices → (cloned voice mo) → Copy ID"></div>
 <div class="row"><label>Model</label><select class="in" id="vModel">${['eleven_multilingual_v2', 'eleven_v3', 'eleven_flash_v2_5', 'eleven_turbo_v2_5'].map(x => `<option ${x === c.model ? 'selected' : ''}>${x}</option>`).join('')}</select><span class="note">multilingual_v2 = pinaka-stable sa Taglish</span></div>
 <div class="row"><label>Stability</label><input class="in" id="vStab" type="number" step=".05" min="0" max="1" value="${c.stability}" style="width:70px"><label>Similarity</label><input class="in" id="vSim" type="number" step=".05" min="0" max="1" value="${c.similarity}" style="width:70px"><label>Style</label><input class="in" id="vSty" type="number" step=".05" min="0" max="1" value="${c.style}" style="width:70px"><label>Speed</label><input class="in" id="vSpd" type="number" step=".05" min=".7" max="1.2" value="${c.speed}" style="width:70px"></div>
+<div class="row"><label style="min-width:auto"><input type="checkbox" id="vTight" ${c.tight === false ? '' : 'checked'}> <b>Walang dead air</b> — nilalaktawan ang katahimikang lagpas ~0.3s (walang dagdag na credits)</label></div>
 <div class="row" style="margin-top:8px"><button class="btn pri" id="vGen">Generate lahat</button><button class="btn" id="vTest">Test ang unang linya</button><button class="btn" id="vDl">Download MP3 (backup)</button><span id="vProg" class="note">${stt.ok === stt.total && stt.total ? '<span style="color:var(--ok)">✓ Handa ang boses ng buong story</span>' : 'Wala pang boses — pindutin ang Generate lahat'} · ~${stt.chars.toLocaleString()} characters</span></div>
 <p class="note">Ginagawa ang buong narration bilang <b>isang tuloy-tuloy na boses</b>, kasama ang eksaktong oras ng bawat salita. Ang animation ang sumusunod sa boses, kaya natural ang daloy. Naka-save ito sa app: hindi na gagastos ulit hangga't hindi binabago ang narration o voice settings. (Kapag may binago kahit isang linya, buong story ang gagawin ulit.) Kailangan ng internet habang nagge-generate lang.<br><b>Babala:</b> naka-save ang API key sa browser na ito. Huwag ibahagi ang story file habang bukas ang Studio, at gumamit ng API key na may limit sa ElevenLabs.</p></div>`;
       const bind = (id, k, num) => { $(id).oninput = e => { c[k] = num ? +e.target.value : e.target.value.trim(); this.save(); }; };
       bind('#vKey', 'key'); bind('#vVoice', 'voiceId'); bind('#vStab', 'stability', 1); bind('#vSim', 'similarity', 1); bind('#vSty', 'style', 1); bind('#vSpd', 'speed', 1);
       $('#vModel').onchange = e => { c.model = e.target.value; this.save(); };
+      $('#vTight').onchange = e => { c.tight = e.target.checked; this.save(); };
       $('#vGen').onclick = () => this.generateAll();
       $('#vDl').onclick = () => this.downloadAll();
       $('#vTest').onclick = async () => { const it = items[0]; if (!it) return; if (!c.key || !c.voiceId) { toast('Ilagay muna ang API key at Voice ID.'); return; } try { $('#vProg').textContent = 'Tine-test…'; let b = await this.getClip(it.key); if (!b) { b = await this.tts(it.text); await this.putClip(it.key, b); } const u = URL.createObjectURL(b); new Audio(u).play(); $('#vProg').textContent = 'Nagpe-play ang test.'; } catch (e) { toast(esc(e.message), 9000); $('#vProg').textContent = 'Error.'; } };
