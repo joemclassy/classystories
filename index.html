@@ -172,6 +172,8 @@ body.mobile.record #mbar,body.mobile.record #mtop{display:none}
 body.mobile #toast{left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom));align-items:stretch}
 body.mobile #toast div{max-width:none}
 #holdHint{display:none;position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:46;background:rgba(14,16,24,.9);border:1px solid var(--line);border-radius:12px;padding:14px 18px;color:var(--tx);font-size:15px;text-align:center}
+.wp{display:inline-block;animation:wpop .38s cubic-bezier(.2,.9,.3,1.35) both}
+@keyframes wpop{from{transform:translateY(26px) scale(.55);opacity:0}to{transform:none;opacity:1}}
 /* studio */
 #studio{position:fixed;inset:0;z-index:70;background:rgba(10,12,20,.94);display:none;flex-direction:column}
 #studio.open{display:flex}
@@ -371,7 +373,7 @@ TURO: ituro ang audience
 <script>
 'use strict';
 const SOURCE_HTML = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-const ENGINE_VERSION = '1.8';
+const ENGINE_VERSION = '1.9';
 const IS_SCRIPT = location.hash.replace('#', '').toLowerCase() === 'script';
 const IS_MOBILE = /[?&]mobile=1/.test(location.search) || (/[?&]mobile=0/.test(location.search) ? false : (matchMedia('(pointer:coarse)').matches && Math.min(screen.width, screen.height) < 900));
 
@@ -1628,7 +1630,8 @@ const ACTION_ALIAS = { imahinasyon: 'imagine', naiisip: 'imagine', nangangarap: 
   tulog: 'sleep', natulog: 'sleep', natutulog: 'sleep', matulog: 'sleep', tigil: 'stop', tumigil: 'stop',
   yakap: 'hug', yumakap: 'hug', apir: 'highfive', kamay: 'handshake', kamayan: 'handshake', makipagkamay: 'handshake',
   pumasok: 'walkin', lumabas: 'walkout', umalis: 'walkout', lumakad: 'moveto', pumunta: 'moveto', kumaway: 'wave', tumalon: 'jump', umiling: 'shake', tumango: 'nod', sumayaw: 'dance', tumuro: 'point', ituro: 'point', sumigaw: 'shout', nagsabi: 'say', humawak: 'hold', tumawag: 'call', nagulat: 'shock', humarap: 'turn', pasok: 'walkin', enter: 'walkin', labas: 'walkout', alis: 'walkout', exit: 'walkout', lakad: 'moveto', punta: 'moveto', move: 'moveto', go: 'moveto', lumitaw: 'show', appear: 'show', wala: 'hide', disappear: 'hide', harap: 'turn', expr: 'face', mukha: 'face', kaway: 'wave', talon: 'jump', iling: 'shake', headshake: 'shake', no: 'shake', tango: 'nod', yes: 'nod', sayaw: 'dance', nginig: 'shiver', turo: 'point', yay: 'cheer', hands: 'cheer', kibit: 'shrug', baywang: 'hips', tawag: 'call', phone: 'call', hawak: 'hold', normal: 'rest', idle: 'rest', gulatin: 'shock', simbolo: 'mark', sabi: 'say', sabe: 'say', bubble: 'say', speak: 'say', talk: 'say', isip: 'think', thought: 'think', sigaw: 'shout', yell: 'shout', tahimik: 'clear' };
-const GLOBAL_CMDS = ['title', 'caption', 'clear', 'camera', 'prop', 'flash', 'pause', 'pass', 'wake', 'siren'];
+const GLOBAL_CMDS = ['title', 'caption', 'clear', 'camera', 'prop', 'flash', 'pause', 'pass', 'wake', 'siren', 'fx'];
+const FX_KINDS = ['money', 'sparkle', 'confetti', 'hearts', 'rain', 'speed'];
 const PASSERS = ['police', 'ambulance', 'firetruck', 'jeep', 'blackcar', 'car', 'motor'];
 const GLOBAL_ALIAS = { gising: 'wake', pop: 'wake', poof: 'wake', balik: 'wake', wangwang: 'siren', sirena: 'siren',  dumaan: 'pass', dadaan: 'pass', drive: 'pass',  cam: 'camera', subtitle: 'caption', text: 'caption', wait: 'pause', '-': 'pause', hinto: 'pause', gamit: 'prop' };
 
@@ -1766,6 +1769,7 @@ function parseAction(rest, ln, amap, iss) {
       if (['shake', 'yugyog'].includes(sub)) { a.sub = 'shake'; return a; }
       iss(ln, 'error', 'camera zoom <actor> | closeup <actor> | pan left|right|center | low | reset | shake'); return null;
     }
+    if (head === 'fx') { const k = ({ pera: 'money', cash: 'money', kislap: 'sparkle', stars: 'sparkle', puso: 'hearts', heart: 'hearts', ulan: 'rain', bilis: 'speed' })[(pos[0] || '').toLowerCase()] || (pos[0] || '').toLowerCase(); if (!FX_KINDS.includes(k)) { iss(ln, 'error', `fx <${FX_KINDS.join('|')}>`); return null; } a.kind = k; return a; }
     if (head === 'pass') { const nm = resolveProp(pos[0]); if (!nm || !PASSERS.includes(nm)) { iss(ln, 'error', `pass <${PASSERS.join('|')}> [left|right]`); return null; } a.name = nm; a.dir = /^(l|left|kaliwa)$/i.test(pos[1] || '') ? -1 : 1; return a; }
     if (head === 'prop') {
       let names = pos.slice(); let hide = false;
@@ -1865,6 +1869,7 @@ function applyAction(st, act, ev) {
       case 'pass': push({ k: 'pass', name: act.name, dir: act.dir }); break;
       case 'wake': st.bubble = null; push({ k: 'wake' }); break;
       case 'siren': push({ k: 'siren' }); break;
+      case 'fx': push({ k: 'fx', kind: act.kind }); break;
     }
     return;
   }
@@ -2027,6 +2032,9 @@ function sirenFX(ms = 3600) {
   $('#fxL').appendChild(g); setTimeout(() => g.remove(), ms);
 }
 
+const MOTION_LV = { off: 0, low: .6, mid: 1, high: 1.6 };
+function motionLv() { const v = LS.get('cs_motion', 'mid'); return MOTION_LV[v] != null ? MOTION_LV[v] : 1; }
+function fmtNum(n) { return Math.round(n).toLocaleString('en-US'); }
 /* ---------- stage view ---------- */
 const Stage = {
   story: null, text: '', pos: { s: -1, k: 0 }, key: '', renderedBg: null, timers: [], guide: true, record: false, laser: true, black: false,
@@ -2035,7 +2043,7 @@ const Stage = {
   build() {
     document.body.insertAdjacentHTML('beforeend', `
 <div id="stageWrap"><svg id="stage" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-  <g id="shakeG"><g id="cam"><g id="bgL"></g><rect id="nightL" x="0" y="0" width="${W}" height="${H}" fill="#1B2350" opacity="0" style="mix-blend-mode:multiply"/><g id="lightL"></g><g id="propBackL"></g><g id="actorL"></g><g id="propL"></g></g></g><g id="dreamL" pointer-events="none"></g><g id="bubbleL"></g>
+  <g id="shakeG"><g id="whipG"><g id="dirG"><g id="leanG"><g id="punchG"><g id="cam"><g id="bgL"></g><rect id="nightL" x="0" y="0" width="${W}" height="${H}" fill="#1B2350" opacity="0" style="mix-blend-mode:multiply"/><g id="lightL"></g><g id="propBackL"></g><g id="actorL"></g><g id="propL"></g></g><g id="bubbleL"></g></g></g></g></g></g><g id="dreamL" pointer-events="none"></g><g id="partL" pointer-events="none"></g>
   <g id="textL"></g><rect id="flashL" x="0" y="0" width="${W}" height="${H}" fill="#fff" opacity="0" pointer-events="none"/><g id="fxL" pointer-events="none"></g>
   <g id="cardL"></g><rect id="fadeL" x="0" y="0" width="${W}" height="${H}" fill="#0E1018" opacity="0" pointer-events="none"/>
   <g id="guideL" pointer-events="none"><rect x="0" y="0" width="${SAFE_L}" height="${H}" fill="#000" opacity=".42"/><rect x="${SAFE_R}" y="0" width="${W - SAFE_R}" height="${H}" fill="#000" opacity=".42"/><rect id="guideLine" x="${SAFE_L}" y="3" width="${SAFE_R - SAFE_L}" height="${H - 6}" fill="none" stroke="#FFC93C" stroke-width="5" stroke-dasharray="26 18"/></g>
@@ -2055,7 +2063,7 @@ const Stage = {
     if (!p.scenes.length) { toast('Hindi ma-load: walang SCENE sa master prompt.'); return false; }
     this.story = p; this.text = text; this.key = hashStr(p.meta.title || 'untitled');
     this.retakes = LS.get('cs_rt_' + this.key, []);
-    this.renderedBg = null;
+    this.renderedBg = null; this.lastSusp = null; this.leanX = 0;
     if (opts.pos) this.pos = opts.pos; else this.pos = { s: -1, k: 0 };
     this.render();
     Sync.send({ t: 'story', text });
@@ -2101,13 +2109,14 @@ const Stage = {
     const { s, k } = this.pos, scs = this.story.scenes;
     this.updateHud();
     const card = $('#cardL');
-    if (s < 0 || s >= scs.length) { this.lastMode = 'real'; $('#dreamL').innerHTML = ''; card.innerHTML = this.cardSVG(s < 0 ? 'title' : 'end'); this.fadeIn(); ['#actorL', '#propL', '#propBackL', '#bubbleL', '#textL'].forEach(q => $(q).innerHTML = ''); this.renderedBg = null; return; }
+    if (s < 0 || s >= scs.length) { this.resetDir(); this.lastSusp = null; this.lastMode = 'real'; $('#dreamL').innerHTML = ''; card.innerHTML = this.cardSVG(s < 0 ? 'title' : 'end'); this.fadeIn(); ['#actorL', '#propL', '#propBackL', '#bubbleL', '#textL'].forEach(q => $(q).innerHTML = ''); this.renderedBg = null; return; }
     card.innerHTML = '';
     const sc = scs[s];
     const bgKey = sc.bg + '|' + sc.time + '|' + sc.bgimg + '|' + sc.bgColor + '|' + s;
     const enteringDream = sceneChange && sc.mode === 'dream' && this.lastMode !== 'dream';
     const leavingDream = sceneChange && sc.mode !== 'dream' && this.lastMode === 'dream';
-    if (this.renderedBg !== bgKey) { this.renderBg(sc); this.renderedBg = bgKey; if (sceneChange && !enteringDream && !leavingDream) this.fadeIn(); }
+    if (this.renderedBg !== bgKey) { this.renderBg(sc); this.renderedBg = bgKey; if (sceneChange && !enteringDream && !leavingDream) { if (motionLv()) this.whip(s); else this.fadeIn(); } }
+    if (sceneChange) { this.pushIn(s); $('#fxL').innerHTML = ''; }
     $('#dreamL').innerHTML = sc.mode === 'dream' ? dreamFrame() : '';
     if (enteringDream) { const ox = CX + 120, oy = 620; $('#shakeG').animate([{ transform: `translate(${ox}px,${oy}px) scale(.1) translate(${-ox}px,${-oy}px)`, opacity: 0 }, { opacity: 1, offset: .35 }, { transform: 'none', opacity: 1 }], { duration: 1100, easing: 'cubic-bezier(.2,.8,.2,1)' }); $('#dreamL').animate([{ opacity: 0 }, { opacity: 1 }], { duration: 900 }); }
     if (leavingDream) { this.fadeIn(); burstFX(CX, 820, 'POOF!'); }
@@ -2141,7 +2150,7 @@ const Stage = {
       if (e.k === 'walk') {
         const el = actorEl(e.id, e.out); if (!el) return;
         const dur = Math.max(450, Math.abs(e.to - e.from) / (e.fast ? 1.7 : e.slow ? 0.34 : 0.78));
-        el.classList.add('walking'); if (e.run) el.classList.add('running');
+        el.classList.add('walking'); if (e.run) { el.classList.add('running'); this.speedLines(el, e.to > e.from ? 1 : -1, dur); }
         const an = A(el, [{ transform: `translate(${e.from}px,${GROUND}px) scale(${sc2})` }, { transform: `translate(${e.to}px,${GROUND}px) scale(${sc2})` }], { duration: dur, easing: 'linear', fill: e.out ? 'forwards' : 'none' });
         if (an) an.onfinish = () => { el.classList.remove('walking', 'running'); if (e.out) el.remove(); };
         delay[e.id] = (delay[e.id] || 0);
@@ -2152,7 +2161,7 @@ const Stage = {
         const T2 = (x, y) => `translate(${x}px,${GROUND + y}px) scale(${sc2})`;
         const mid = (e.from + e.to) / 2;
         A(el, [{ transform: T2(e.from, 0) }, { transform: T2(e.from, 12), offset: .12 }, { transform: T2(mid, -330), offset: .55, easing: 'ease-in' }, { transform: T2(e.to, 0), offset: .9 }, { transform: T2(e.to, 10), offset: .95 }, { transform: T2(e.to, 0) }], { duration: 900, easing: 'ease-out' });
-        delay[e.id] = (delay[e.id] || 0) + 900;
+        delay[e.id] = (delay[e.id] || 0) + 900; this.dust(e.id, 820);
       }
     });
     ev.forEach(e => {
@@ -2162,7 +2171,7 @@ const Stage = {
       switch (e.k) {
         case 'pop': A(q('.jumpA'), [{ transform: 'scale(0)', opacity: 0 }, { transform: 'scale(1.12)', opacity: 1, offset: .7 }, { transform: 'scale(1)' }], { duration: 420, easing: 'ease-out', delay: d, fill: 'backwards' }); break;
         case 'hide': { const g = actorEl(e.id, true); const an = A(g && g.querySelector('.jumpA'), [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(1.1)', offset: .3 }, { transform: 'scale(0)', opacity: 0 }], { duration: 380, easing: 'ease-in', fill: 'forwards' }); if (an) an.onfinish = () => g.remove(); break; }
-        case 'jump': A(q('.jumpA'), [{ transform: 'translateY(0)' }, { transform: `translateY(${e.small ? -34 : -70}px)`, easing: 'ease-in' }, { transform: 'translateY(0)' }], { duration: e.small ? 380 : 560, delay: d, easing: 'ease-out' }); break;
+        case 'jump': { const hgt = e.small ? 34 : 70, du = e.small ? 420 : 640; A(q('.jumpA'), motionLv() ? [{ transform: 'none' }, { transform: 'scale(1.1,.86)', offset: .14 }, { transform: `translateY(${-hgt}px) scale(.94,1.08)`, offset: .5, easing: 'ease-in' }, { transform: 'scale(1.08,.9)', offset: .84 }, { transform: 'none' }] : [{ transform: 'translateY(0)' }, { transform: `translateY(${-hgt}px)`, easing: 'ease-in' }, { transform: 'translateY(0)' }], { duration: du, delay: d, easing: 'ease-out' }); if (!e.small) this.dust(e.id, d + du * .84); break; }
         case 'shake': A(q('.headA'), [{ transform: 'rotate(0)' }, { transform: 'rotate(-13deg)' }, { transform: 'rotate(13deg)' }, { transform: 'rotate(-11deg)' }, { transform: 'rotate(11deg)' }, { transform: 'rotate(0)' }], { duration: 950, delay: d }); break;
         case 'nod': A(q('.headA'), [{ transform: 'translateY(0)' }, { transform: 'translateY(7px)' }, { transform: 'translateY(0)' }, { transform: 'translateY(7px)' }, { transform: 'translateY(0)' }], { duration: 850, delay: d }); break;
         case 'shiver': A(q('.jumpA'), [...Array(14)].map((_, i) => ({ transform: `translateX(${i % 2 ? 2.5 : -2.5}px)` })), { duration: 1400, delay: d }); break;
@@ -2201,7 +2210,7 @@ const Stage = {
           break;
         }
         case 'stance': A(q('.jumpA'), [{ transform: e.up ? 'translateY(14px)' : 'scaleY(1.06)' }, { transform: e.up ? 'translateY(-10px)' : 'scaleY(.95)' }, { transform: 'none' }], { duration: 320, delay: d, easing: 'ease-out' }); break;
-        case 'thud': A(q('.jumpA'), [{ transform: 'translateY(-60px)', opacity: .4 }, { transform: 'translateY(0)', opacity: 1, offset: .55, easing: 'ease-out' }, { transform: 'translateY(-14px)', offset: .75 }, { transform: 'translateY(0)' }], { duration: 520, delay: d, easing: 'ease-in' }); break;
+        case 'thud': this.dust(e.id, d + 280, 1.4); A(q('.jumpA'), [{ transform: 'translateY(-60px)', opacity: .4 }, { transform: 'translateY(0)', opacity: 1, offset: .55, easing: 'ease-out' }, { transform: 'translateY(-14px)', offset: .75 }, { transform: 'translateY(0)' }], { duration: 520, delay: d, easing: 'ease-in' }); break;
         case 'peek': if (el) el.querySelectorAll('.torsoA').forEach(t => A(t, [{ transform: 'translateY(0)' }, { transform: 'translateY(-34px)', offset: .2 }, { transform: 'translateY(-34px)', offset: .75 }, { transform: 'translateY(0)' }], { duration: 2200, delay: d, easing: 'ease-in-out' })); break;
         case 'bow': if (el) { el.querySelectorAll('.torsoA').forEach(t => A(t, [{ transform: 'translateY(0)' }, { transform: 'translateY(16px)', offset: .3 }, { transform: 'translateY(16px)', offset: .7 }, { transform: 'translateY(0)' }], { duration: 1500, delay: d, easing: 'ease-in-out' })); A(q('.headA'), [{ transform: 'translateY(0) scaleY(1)' }, { transform: 'translateY(8px) scaleY(.9)', offset: .3 }, { transform: 'translateY(8px) scaleY(.9)', offset: .7 }, { transform: 'translateY(0) scaleY(1)' }], { duration: 1500, delay: d, easing: 'ease-in-out' }); } break;
         case 'hop': A(q('.jumpA'), [{ transform: 'translateY(0)' }, { transform: 'translateY(-30px)' }, { transform: 'translateY(0)' }], { duration: 340, iterations: 4, delay: d, easing: 'ease-in-out' }); break;
@@ -2232,6 +2241,7 @@ const Stage = {
         case 'camshake': { const k = e.soft ? .4 : 1; A($('#shakeG'), [...Array(10)].map((_, i) => ({ transform: i === 9 ? 'translate(0,0)' : `translate(${(i % 2 ? 1 : -1) * (24 - i * 2) * k}px,${(i % 3 - 1) * 10 * k}px)` })), { duration: 600, delay: (e.soft ? 260 : 0) }); break; }
         case 'wake': A($('#flashL'), [{ opacity: .9 }, { opacity: 0 }], { duration: 600 }); burstFX(CX, 820, 'POP!'); A($('#shakeG'), [...Array(8)].map((_, i) => ({ transform: i === 7 ? 'none' : `translate(${(i % 2 ? 1 : -1) * 18}px,0)` })), { duration: 450 }); break;
         case 'siren': sirenFX(); break;
+        case 'fx': this.particles(e.kind); break;
         case 'pass': {
           const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); const k = FAR_SIZE[e.name] || 4.4;
           const flip = e.dir < 0 && ['motor', 'car', 'blackcar'].includes(e.name) ? -1 : 1;
@@ -2247,8 +2257,82 @@ const Stage = {
         case 'prophide': { const pe = $(`#propL [data-prop="ghost-${e.p.name}"]`); const an = A(pe && pe.querySelector('.pin'), [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(0)', opacity: 0 }], { duration: 300, easing: 'ease-in', fill: 'forwards' }); if (an) an.onfinish = () => pe.remove(); break; }
       }
     });
+    this.dirStep(st, ev, delay);
     this.drawBubble(st, ev, delay);
     this.drawTexts(st, ev);
+  },
+  resetDir() { ['#whipG', '#dirG', '#leanG', '#punchG'].forEach(q => { const el = $(q); if (el) { el.getAnimations().forEach(a => a.cancel()); el.style.transform = ''; } }); this.leanX = 0; },
+  pushIn(si) {
+    const m = motionLv(), el = $('#dirG'); el.getAnimations().forEach(a => a.cancel());
+    if (!m) { el.style.transform = ''; return; }
+    const dx = (si % 2 ? 1 : -1) * 34 * m, z = 1 + .055 * m;
+    el.animate([{ transform: 'none' }, { transform: `translate(${CX}px,960px) scale(${z}) translate(${-CX + dx}px,-960px)` }], { duration: 9000, easing: 'cubic-bezier(.25,.6,.3,1)', fill: 'forwards' });
+  },
+  whip(si) {
+    const m = motionLv(), dir = si % 2 ? -1 : 1, el = $('#whipG');
+    el.animate([{ transform: `translateX(${dir * 760 * m}px)` }, { transform: 'none' }], { duration: 340, easing: 'cubic-bezier(.15,.85,.25,1)' });
+    $('#fadeL').animate([{ opacity: .55 }, { opacity: 0 }], { duration: 260, easing: 'ease-out' });
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); const r = rng(si + 7);
+    g.innerHTML = [...Array(14)].map(() => { const y = (120 + r() * 1700) | 0, w = (300 + r() * 600) | 0; return `<rect x="${SAFE_L - 200}" y="${y}" width="${w}" height="${(4 + r() * 8) | 0}" rx="4" fill="#FFFFFF" opacity="${(.25 + r() * .4).toFixed(2)}"/>`; }).join('');
+    $('#partL').appendChild(g);
+    g.animate([{ transform: `translateX(${dir > 0 ? 1400 : -200}px)`, opacity: 1 }, { transform: `translateX(${dir > 0 ? -300 : 1500}px)`, opacity: 0 }], { duration: 320, easing: 'ease-out', fill: 'forwards' }).onfinish = () => g.remove();
+  },
+  scr(a, st) { const c = CAST[a.id], z = st.cam.z; const hy = GROUND + SCALE * c.height * (headTopLocal(a) + 40); return { x: CX + z * (a.x - st.cam.x), y: 960 + z * (hy - st.cam.y) }; },
+  dirStep(st, ev, delay) {
+    const m = motionLv(); if (!m) return;
+    // lean: bahagyang lumilipat ang camera papunta sa nagsasalita
+    const sp = st.bubble && st.actors[st.bubble.id] && st.actors[st.bubble.id].vis ? st.actors[st.bubble.id] : null;
+    const target = sp ? clamp((CX - sp.x) * .24 * m, -110, 110) : 0;
+    if (Math.abs(target - (this.leanX || 0)) > 1) { const el = $('#leanG'), from = this.leanX || 0; el.getAnimations().forEach(a => a.cancel()); el.animate([{ transform: `translateX(${from}px)` }, { transform: `translateX(${target}px)` }], { duration: 650, easing: 'cubic-bezier(.3,.7,.3,1)', fill: 'forwards' }); this.leanX = target; }
+    // punch-in sa gulat / bagsak
+    const hit = ev.find(e => (e.k === 'mark' && e.m === '!') || e.k === 'thud');
+    if (hit && st.actors[hit.id]) {
+      const P = this.scr(st.actors[hit.id], st), z = 1 + .13 * m, el = $('#punchG'), d = (delay[hit.id] || 0) + 40;
+      el.getAnimations().forEach(a => a.cancel());
+      const T = k => `translate(${P.x}px,${P.y}px) scale(${k}) translate(${-P.x}px,${-P.y}px)`;
+      el.animate([{ transform: T(1) }, { transform: T(z), offset: .16 }, { transform: T(z * .99), offset: .72 }, { transform: T(1) }], { duration: 1250, delay: d, easing: 'ease-in-out' });
+    }
+    if (ev.some(e => e.k === 'activity') && Object.values(st.actors).some(a => a.activity === 'countmoney')) this.particles('money', 7);
+  },
+  dust(id, d, k = 1) {
+    if (!motionLv()) return;
+    const el = $(`#actorL [data-id="${id}"]`); if (!el) return;
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.innerHTML = [-1, 1].map(sd => [0, 1, 2].map(i => `<circle class="dp" data-sd="${sd}" cx="${sd * (22 + i * 8)}" cy="-4" r="${(9 - i * 2) * k}" fill="#D9CFC0" opacity=".9"/>`).join('')).join('');
+    el.appendChild(g);
+    g.querySelectorAll('.dp').forEach((c, i) => { const sd = +c.dataset.sd; c.animate([{ transform: 'translate(0,0) scale(.4)', opacity: 0 }, { opacity: .9, offset: .15 }, { transform: `translate(${sd * (34 + i * 6) * k}px,${-10 - i * 3}px) scale(1.4)`, opacity: 0 }], { duration: 520, delay: d, easing: 'ease-out', fill: 'both' }); });
+    setTimeout(() => g.remove(), d + 700);
+  },
+  speedLines(el, dir, dur) {
+    if (!motionLv()) return;
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.setAttribute('class', 'sl');
+    g.innerHTML = [-170, -130, -95, -60, -30].map((y, i) => `<rect x="${dir > 0 ? -120 - i * 8 : 40 + i * 8}" y="${y}" width="${70 + (i % 2) * 30}" height="4" rx="2" fill="#FFFFFF" opacity=".75"/>`).join('');
+    const jump = el.querySelector('.jumpA'); el.insertBefore(g, jump);
+    g.animate([{ opacity: .9 }, { opacity: .3 }, { opacity: .9 }], { duration: 180, iterations: Math.ceil(dur / 180) });
+    setTimeout(() => g.remove(), dur);
+  },
+  particles(kind, n) {
+    const m = motionLv(); if (!m) return;
+    const L = $('#partL'), r = Math.random, cnt = n || Math.round({ money: 26, sparkle: 18, confetti: 40, hearts: 16, rain: 70, speed: 18 }[kind] * Math.min(m, 1.3));
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); L.appendChild(g);
+    const W2 = SAFE_R - SAFE_L; let maxT = 0;
+    for (let i = 0; i < cnt; i++) {
+      const x = SAFE_L + r() * W2, dl = r() * (kind === 'rain' ? 2200 : 700), du = kind === 'rain' ? 520 + r() * 200 : kind === 'sparkle' ? 900 + r() * 500 : 1700 + r() * 1100; maxT = Math.max(maxT, dl + du);
+      const it = document.createElementNS('http://www.w3.org/2000/svg', 'g'); let svg = '', kf;
+      if (kind === 'money') svg = `<rect x="-38" y="-20" width="76" height="40" rx="4" fill="#4CAF50" stroke="#2E7D32" stroke-width="3"/><circle r="11" fill="#A5D6A7"/><text y="7" text-anchor="middle" font-family="Arial Black,Arial" font-size="18" fill="#1B5E20">₱</text>`;
+      else if (kind === 'confetti') svg = `<rect x="-9" y="-5" width="18" height="10" fill="${['#E63946', '#FFC93C', '#2E86C1', '#5BD69A', '#E57BA1', '#9D4EDD'][i % 6]}"/>`;
+      else if (kind === 'hearts') svg = `<g transform="scale(.5)">${PROPS.heart()}</g>`;
+      else if (kind === 'rain') svg = `<rect x="-2" y="-30" width="4" height="60" rx="2" fill="#9FD8F5" opacity=".7"/>`;
+      else if (kind === 'speed') svg = `<rect x="-160" y="-3" width="320" height="6" rx="3" fill="#FFFFFF" opacity=".7"/>`;
+      else svg = `<path d="M0 -24 L6 -6 L24 0 L6 6 L0 24 L-6 6 L-24 0 L-6 -6Z" fill="#FFC93C" stroke="#E0A800" stroke-width="2"/>`;
+      it.innerHTML = svg; g.appendChild(it);
+      const rot = (r() - .5) * 720, sway = (r() - .5) * 240;
+      if (kind === 'sparkle') { const y = 400 + r() * 1100; kf = [{ transform: `translate(${x}px,${y}px) scale(0)`, opacity: 0 }, { transform: `translate(${x}px,${y}px) scale(${1 + r()}) rotate(90deg)`, opacity: 1, offset: .4 }, { transform: `translate(${x}px,${y}px) scale(0) rotate(180deg)`, opacity: 0 }]; }
+      else if (kind === 'speed') { const y = 200 + r() * 1500; kf = [{ transform: `translate(${SAFE_R + 300}px,${y}px)` }, { transform: `translate(${SAFE_L - 300}px,${y}px)` }]; }
+      else kf = [{ transform: `translate(${x}px,-80px) rotate(0deg)`, opacity: 1 }, { transform: `translate(${x + sway}px,${H + 80}px) rotate(${rot}deg)`, opacity: kind === 'rain' ? .6 : 1 }];
+      it.animate(kf, { duration: du, delay: dl, easing: kind === 'rain' || kind === 'speed' ? 'linear' : 'cubic-bezier(.3,.1,.6,1)', fill: 'both' });
+    }
+    setTimeout(() => g.remove(), maxT + 100);
   },
   fadeIn() { const f = $('#fadeL'); f.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 380, easing: 'ease-out' }); },
   actorSVG(a, idOverride) {
@@ -2327,21 +2411,52 @@ const Stage = {
     if (ev.some(e => e.k === 'bubble')) L.querySelector('.bpop').animate([{ transform: 'scale(0)', opacity: 0 }, { transform: 'scale(1.08)', opacity: 1, offset: .7 }, { transform: 'scale(1)' }], { duration: 360, delay: (delay[b.id] || 0) + 60, easing: 'ease-out', fill: 'backwards', id: 'cs' });
   },
   drawTexts(st, ev) {
-    const L = $('#textL'); L.innerHTML = '';
-    const mk = (text, kind) => {
+    const L = $('#textL'); L.innerHTML = ''; const m = motionLv();
+    const newT = ev.some(e => e.k === 'title'), newC = ev.some(e => e.k === 'caption');
+    const numRe = /₱\s?\d{1,3}(?:,\d{3})+|₱\s?\d{4,}|\b\d{1,3}(?:,\d{3}){1,}\b/;
+    const words = (text, anim) => anim && m ? esc(text).split(/(\s+)/).map((w, i) => /^\s+$/.test(w) ? w : `<span class="wp" style="animation-delay:${i * 45}ms">${w}</span>`).join('') : esc(text);
+    const withCount = (html, anim) => { if (!anim || !m) return html; return html.replace(numRe, mm => `<span class="cu" data-to="${mm.replace(/[^\d]/g, '')}" data-pre="${mm.startsWith('₱') ? '₱' : ''}">${mm}</span>`); };
+    const sus = st.title && st.title.match(/SUSPICION[^\d]*(\d{1,3})\s*%/i);
+    const mk = (text, kind, anim) => {
       const maxW = 960, title = kind === 'title';
       const sty = title ? 'font-family:Arial Black,Segoe UI Black,Arial,sans-serif;font-weight:900;color:#FFC93C;letter-spacing:1px;line-height:1.08;text-align:center' : 'font-family:Segoe UI,Arial,sans-serif;font-weight:700;color:#1C1C1E;line-height:1.2;text-align:center';
-      const m = this.measureFO(`<div style="${sty}">${esc(text)}</div>`, maxW - 70, title ? 80 : 46, title ? 40 : 30, title ? 260 : 130);
-      const w = m.w + 70, h = m.h + (title ? 50 : 40), x = CX - w / 2, y = title ? 140 : Math.min(1736, 1880 - h);
-      return `<g class="${kind}G"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${title ? 26 : 22}" fill="${title ? '#1C1C1E' : '#FFFFFF'}" stroke="${title ? '#FFC93C' : '#1C1C1E'}" stroke-width="6"/>` +
-        `<foreignObject x="${x}" y="${y}" width="${w}" height="${h}"><div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%"><div style="${sty};font-size:${m.fs}px">${esc(text)}</div></div></foreignObject></g>`;
+      const mm = this.measureFO(`<div style="${sty}">${esc(text)}</div>`, maxW - 70, title ? 80 : 46, title ? 40 : 30, title ? 260 : 130);
+      const w = mm.w + 70, h = mm.h + (title ? 50 : 40), x = CX - w / 2, y = title ? 140 : Math.min(1736, 1880 - h);
+      const inner = title ? withCount(esc(text), anim) : withCount(words(text, anim), anim);
+      return `<g class="${kind}G" data-cy="${y + h / 2}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${title ? 26 : 22}" fill="${title ? '#1C1C1E' : '#FFFFFF'}" stroke="${title ? '#FFC93C' : '#1C1C1E'}" stroke-width="6"/>` +
+        `<foreignObject x="${x}" y="${y}" width="${w}" height="${h}"><div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%"><div style="${sty};font-size:${mm.fs}px">${inner}</div></div></foreignObject></g>`;
+    };
+    const meter = (pct) => {
+      const x = CX - 400, y = 120, w = 800, col = pct >= 70 ? '#FF4D4D' : pct >= 40 ? '#FFC93C' : '#5BD69A';
+      return `<g class="meterG ${pct >= 80 ? 'pulse' : ''}"><rect x="${x}" y="${y}" width="${w}" height="150" rx="26" fill="#1C1C1E" stroke="${col}" stroke-width="6"/>` +
+        `<text x="${x + 40}" y="${y + 58}" font-family="Arial Black,Arial" font-size="42" fill="#FFFFFF" letter-spacing="3">SUSPICION</text>` +
+        `<text class="mpct" x="${x + w - 40}" y="${y + 58}" text-anchor="end" font-family="Arial Black,Arial" font-size="46" fill="${col}">${pct}%</text>` +
+        `<rect x="${x + 40}" y="${y + 84}" width="${w - 80}" height="36" rx="18" fill="#2E3245"/>` +
+        `<g transform="translate(${x + 40},${y + 84})"><g class="mfill"><rect x="0" y="0" width="${w - 80}" height="36" rx="18" fill="${col}"/></g></g>` +
+        [.25, .5, .75].map(f => `<rect x="${x + 40 + (w - 80) * f - 2}" y="${y + 84}" width="4" height="36" fill="#1C1C1E" opacity=".5"/>`).join('') + `</g>`;
     };
     let h = '';
-    if (st.title) h += mk(st.title, 'title');
-    if (st.caption) h += mk(st.caption, 'caption');
+    if (sus) h += meter(+sus[1]); else if (st.title) h += mk(st.title, 'title', newT);
+    if (st.caption) h += mk(st.caption, 'caption', newC);
     L.innerHTML = h;
-    if (ev.some(e => e.k === 'title')) { const g = L.querySelector('.titleG'); g && g.animate([{ transform: 'translateY(-240px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }], { duration: 480, easing: 'cubic-bezier(.2,.9,.3,1.2)', id: 'cs' }); }
-    if (ev.some(e => e.k === 'caption')) { const g = L.querySelector('.captionG'); g && g.animate([{ transform: 'translateY(200px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }], { duration: 420, easing: 'ease-out', id: 'cs' }); }
+    if (sus) {
+      const pct = +sus[1], from = this.lastSusp == null ? pct : this.lastSusp; this.lastSusp = pct;
+      const f = L.querySelector('.mfill'); const S = v => `scale(${Math.max(.0001, v / 100)},1)`;
+      f.style.transform = S(pct);
+      if (from !== pct || newT) { f.animate([{ transform: S(from) }, { transform: S(pct) }], { duration: m ? 900 : 1, easing: 'cubic-bezier(.3,.8,.3,1)' }); const t = L.querySelector('.mpct'), t0 = performance.now(); const step = () => { const k = Math.min(1, (performance.now() - t0) / 900); t.textContent = Math.round(from + (pct - from) * (1 - Math.pow(1 - k, 3))) + '%'; if (k < 1) requestAnimationFrame(step); }; if (m) step(); }
+      if (newT && m && pct > from) { const g = L.querySelector('.meterG'); g.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-10px)' }, { transform: 'translateX(10px)' }, { transform: 'translateX(-6px)' }, { transform: 'none' }], { duration: 360, delay: 600 }); }
+    } else if (newT) {
+      const g = L.querySelector('.titleG');
+      if (g) { const cy = +g.dataset.cy; const T = (k, r2) => `translate(${CX}px,${cy}px) scale(${k}) rotate(${r2}deg) translate(${-CX}px,${-cy}px)`;
+        g.animate(m ? [{ transform: T(1.8, -5), opacity: 0 }, { transform: T(.93, 1), opacity: 1, offset: .62 }, { transform: T(1, 0) }] : [{ transform: 'translateY(-240px)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: m ? 460 : 480, easing: 'cubic-bezier(.2,.9,.3,1.2)', id: 'cs' });
+        if (m) $('#shakeG').animate([{ transform: 'none' }, { transform: 'translateY(10px)' }, { transform: 'translateY(-6px)' }, { transform: 'none' }], { duration: 260, delay: 270 }); }
+    }
+    if (newC && !m) { const g = L.querySelector('.captionG'); g && g.animate([{ transform: 'translateY(200px)', opacity: 0 }, { transform: 'translateY(0)', opacity: 1 }], { duration: 420, easing: 'ease-out', id: 'cs' }); }
+    if (newC && m) { const g = L.querySelector('.captionG'); g && g.querySelector('rect').animate([{ opacity: 0, transform: 'scaleX(.2)' }, { opacity: 1, transform: 'none' }], { duration: 300, easing: 'ease-out' }); }
+    // count-up ng mga numero (hal. ₱5,000,000)
+    let big = false;
+    L.querySelectorAll('.cu').forEach(sp => { const to = +sp.dataset.to, pre = sp.dataset.pre, t0 = performance.now(), du = 1200; if (pre && to >= 100000) big = true; const step = () => { const k = Math.min(1, (performance.now() - t0) / du); sp.textContent = pre + fmtNum(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); }; step(); });
+    if (big) this.particles('money');
   },
   renderBg(sc) {
     const n = sc.time === 'night';
@@ -2434,6 +2549,7 @@ const Studio = {
     <div id="editorCol"><textarea id="txt" spellcheck="false" placeholder="I-paste dito ang master prompt galing kay Claude..."></textarea><div id="edStatus"></div></div>
     <div id="sideCol">
       <div class="card"><h4>Mga story ko</h4><div class="row"><select class="in" id="libSel" style="flex:1"></select><button class="btn" id="libLoad">Buksan</button><button class="btn dng" id="libDel">✕</button></div><div class="note">Awtomatikong nase-save dito ang bawat story na ni-Load &amp; play.</div></div>
+      <div class="card"><h4>Motion graphics</h4><div class="row"><select class="in" id="motSel" style="flex:1"><option value="off">Off — simple</option><option value="low">Mahina</option><option value="mid">Katamtaman (default)</option><option value="high">Malakas</option></select></div><div class="note">Awtomatikong camera push-in, punch-in sa gulat, whip transitions, kinetic text, count-up ng pera, at suspicion meter.</div></div>
       <div class="card"><h4>Validation</h4><div id="issues" class="issues"></div></div>
       <div class="card"><h4>Scene Builder — magdagdag ng step</h4>
         <div class="row"><label>Step #</label><input class="in" id="cStep" type="number" min="1" style="width:64px"><label style="min-width:auto"><input type="checkbox" id="cSame"> parehong step</label></div>
@@ -2493,7 +2609,7 @@ const Studio = {
     if (t === 'retakes') this.renderRetakes();
     if (t === 'help') this.renderHelp();
     if (t === 'voice') Voice.render();
-    if (t === 'story') { this.refreshComposerLists(); this.renderLib(); }
+    if (t === 'story') { this.refreshComposerLists(); this.renderLib(); const ms = $('#motSel'); if (ms) { ms.value = LS.get('cs_motion', 'mid'); ms.onchange = () => { LS.set('cs_motion', ms.value); toast('Motion: ' + ms.options[ms.selectedIndex].text); }; } }
   },
   renderLib() {
     const lib = LS.get('cs_lib', {}), sel = $('#libSel'); if (!sel) return;
@@ -2619,6 +2735,8 @@ GLOBAL (walang actor):
     y:air = lumulutang na icon (pang-explain) · y:ground = nasa sahig sa harap (natural na laki) · y:far = nasa kalsada/likod (kotse, jeep, motor, bahay)
   pass <police|ambulance|firetruck|jeep|blackcar|car|motor> [left|right] — dadaan ang sasakyan sa kalsada sa likod (may wangwang ang pulis/ambulansya/bumbero)
   wake — gising mula sa dream (POP!)   siren — wangwang na pula/asul sa screen
+  fx money|sparkle|confetti|hearts|rain|speed — particles sa screen (hal. umuulan ng pera)
+  (AWTOMATIKO na ang camera motion, transitions, kinetic text, count-up ng pera, at suspicion meter — hindi na kailangang isulat)
   flash | pause
 
 ---
@@ -2659,7 +2777,7 @@ CAST NA GUSTO KO:
   },
   refreshActs() {
     const who = $('#cWho').value, act = $('#cAct');
-    const list = who === '@global' ? ['title', 'caption', 'prop', 'prop-hide', 'pass', 'camera-zoom', 'camera-closeup', 'camera-pan', 'camera-low', 'camera-reset', 'camera-shake', 'clear', 'flash', 'pause'] : Object.keys(ACTIONS).concat(Object.keys(EXPR).map(e => 'expr:' + e));
+    const list = who === '@global' ? ['title', 'caption', 'prop', 'prop-hide', 'fx', 'pass', 'camera-zoom', 'camera-closeup', 'camera-pan', 'camera-low', 'camera-reset', 'camera-shake', 'clear', 'flash', 'pause'] : Object.keys(ACTIONS).concat(Object.keys(EXPR).map(e => 'expr:' + e));
     const opt = a => `<option value="${a}">${a.startsWith('expr:') ? a.slice(5) : a}${ACTIONS[a] ? ' — ' + ACTIONS[a].d : ''}</option>`;
     if (who === '@global') act.innerHTML = list.map(opt).join('');
     else {
@@ -2690,6 +2808,7 @@ CAST NA GUSTO KO:
     else if (['say', 'think', 'shout', 'title', 'caption'].includes(a)) h = `<div class="row"><label>Text</label><input class="in" id="aText" style="flex:1" maxlength="140"></div><div class="row"><span class="note" id="aCount"></span></div>`;
     else if (a === 'prop') h = `<div class="row"><label>Prop</label>${propSel('aProp')}</div><div class="row"><label>Slot</label>${slotSel('aSlot')}</div><div class="row"><label>Taas</label><select class="in" id="aY"><option>air</option><option>ground</option><option>far</option></select><select class="in" id="aSize"><option>m</option><option>s</option><option>l</option></select></div>`;
     else if (a === 'prop-hide') h = `<div class="row"><label>Prop</label>${propSel('aProp')}</div>`;
+    else if (a === 'fx') h = `<div class="row"><label>Effect</label><select class="in" id="aProp">${FX_KINDS.map(x => `<option>${x}</option>`).join('')}</select></div>`;
     else if (a === 'pass') h = `<div class="row"><label>Sasakyan</label><select class="in" id="aProp">${PASSERS.map(x => `<option>${x}</option>`).join('')}</select><select class="in" id="aDir"><option>right</option><option>left</option></select></div>`;
     else if (a === 'camera-closeup') h = `<div class="row"><label>Kanino</label><select class="in" id="aTarget">${Object.keys(CAST).map(c => `<option>${c}</option>`).join('')}</select></div>`;
     else if (a === 'camera-pan') h = `<div class="row"><label>Saan</label><select class="in" id="aDir"><option>right</option><option>left</option><option>center</option></select></div>`;
@@ -2709,6 +2828,7 @@ CAST NA GUSTO KO:
       else if (a === 'prop') body = `prop ${v('aProp')} at:${v('aSlot')}${v('aY') !== 'air' ? ' y:' + v('aY') : ''}${v('aSize') !== 'm' ? ' size:' + v('aSize') : ''}`;
       else if (a === 'prop-hide') body = `prop ${v('aProp')} hide`;
       else if (a === 'camera-zoom') body = `camera zoom ${v('aTarget')} ${v('aZoom') || 1.4}`;
+      else if (a === 'fx') body = `fx ${v('aProp')}`;
       else if (a === 'pass') body = `pass ${v('aProp')} ${v('aDir')}`;
       else if (a === 'camera-closeup') body = `camera closeup ${v('aTarget')}`;
       else if (a === 'camera-pan') body = `camera pan ${v('aDir')}`;
