@@ -1216,7 +1216,7 @@ const BG = {
       s += hdr(v === 'wallet' ? 'E-WALLET' : 'BANK', col);
       s += `<rect x="${L}" y="${y0 - 40}" width="${Wc}" height="300" rx="34" fill="${col}"/><text x="${L + 50}" y="${y0 + 40}" font-family="Segoe UI,Arial" font-weight="700" font-size="36" fill="#FFFFFF" opacity=".85">Available balance</text><text x="${L + 50}" y="${y0 + 160}" font-family="Arial Black,Arial" font-size="92" fill="#FFFFFF">${txt || '₱1,250.00'}</text>`;
       ['Send', 'Load', 'Pay', 'Bills'].forEach((a, i) => { const bx = L + i * (Wc / 4) + Wc / 8; s += `<circle cx="${bx}" cy="${y0 + 400}" r="64" fill="#E8EEFC"/><text x="${bx}" y="${y0 + 515}" text-anchor="middle" font-family="Segoe UI,Arial" font-weight="700" font-size="34" fill="#1C1C1E">${a}</text>`; });
-      s += `<text x="${L}" y="${y0 + 640}" font-family="Arial Black,Arial" font-size="40" fill="#1C1C1E">Transactions</text>` + [['Load', '-₱100.00'], ['Fishball', '-₱20.00'], ['Cash in', '+₱500.00'], ['Meralco', '-₱1,320.00']].map(([a, b2], i) => `<rect x="${L}" y="${y0 + 680 + i * 130}" width="${Wc}" height="110" rx="20" fill="#FFFFFF"/><text x="${L + 40}" y="${y0 + 750 + i * 130}" font-family="Segoe UI,Arial" font-weight="700" font-size="38" fill="#1C1C1E">${a}</text><text x="${L + Wc - 40}" y="${y0 + 750 + i * 130}" text-anchor="end" font-family="Arial Black,Arial" font-size="38" fill="${b2.startsWith('+') ? '#1F8A5B' : '#C0392B'}">${b2}</text>`).join('');
+      s += `<text x="${L}" y="${y0 + 640}" font-family="Arial Black,Arial" font-size="40" fill="#1C1C1E">Transactions</text>` + [['Load', '-₱100.00'], ['Fishball', '-₱20.00'], ['Cash in', '+₱500.00'], ['Kuryente', '-₱1,320.00']].map(([a, b2], i) => `<rect x="${L}" y="${y0 + 680 + i * 130}" width="${Wc}" height="110" rx="20" fill="#FFFFFF"/><text x="${L + 40}" y="${y0 + 750 + i * 130}" font-family="Segoe UI,Arial" font-weight="700" font-size="38" fill="#1C1C1E">${a}</text><text x="${L + Wc - 40}" y="${y0 + 750 + i * 130}" text-anchor="end" font-family="Arial Black,Arial" font-size="38" fill="${b2.startsWith('+') ? '#1F8A5B' : '#C0392B'}">${b2}</text>`).join('');
     } else if (v === 'chat') {
       s += `<rect x="${sx}" y="${sy + 110}" width="${sw}" height="150" fill="#FFFFFF"/><circle cx="${sx + 110}" cy="${sy + 185}" r="50" fill="#9AA0A6"/><text x="${sx + 190}" y="${sy + 175}" font-family="Arial Black,Arial" font-size="44" fill="#1C1C1E">${txt || 'Unknown'}</text><text x="${sx + 190}" y="${sy + 225}" font-family="Segoe UI,Arial" font-weight="700" font-size="30" fill="#2FB36B">Active now</text><rect x="${sx}" y="${sy + 258}" width="${sw}" height="4" fill="#E5E7EB"/>`;
       s += `<rect x="${sx + 30}" y="${sy + sh - 170}" width="${sw - 60}" height="110" rx="55" fill="#FFFFFF" stroke="#D1D5DB" stroke-width="4"/><text x="${sx + 90}" y="${sy + sh - 100}" font-family="Segoe UI,Arial" font-size="38" fill="#9CA3AF">Aa</text>`;
@@ -1699,7 +1699,7 @@ const RECIPES = {
   caught: { d: 'Huli! Pulis na may ID, wangwang, gulat (pang-dream o totoo)', t: ['pulis walkIn {s}', 'prop badge at:center', 'siren', '{a} shock'], s: 'right' },
   wakeup: { d: 'Gising sa realidad: POP!, pawis, hingal', t: ['wake', '{a} worried', '{a} mark sweat'] },
   topup: { d: 'Hawak ang phone, tumingin, tapos zoom papasok (sunod na scene: BG: phone load)', t: ['{a} hold phone', '{a} look down', 'camera into {a}'] },
-  checkphone: { d: 'Tinitingnan ang phone, tapos zoom papasok (sunod: BG: phone chat/wallet/news)', t: ['{a} text', 'camera into {a}'] },
+  checkphone: { d: 'Tinitingnan ang phone, tapos zoom papasok (sunod: BG: phone chat/wallet/news)', t: ['{a} hold phone', '{a} look down', '{a} worried', 'camera into {a}'] },
   surrender: { d: 'Isinusuko ang briefcase (iniwan sa mesa)', t: ['{a} rest', 'prop table at:{s} y:ground', 'prop briefcase at:{s} y:table', '{a} happy', 'prop check at:{s}'], s: 'center' }
 };
 function expandRecipe(rest, amap) {
@@ -2299,7 +2299,7 @@ const Stage = {
         case 'siren': sirenFX(); break;
         case 'into': {
           const a = st.actors[e.id]; if (!a) break; const c = CAST[a.id], k = SCALE * c.height, side = (a.facing || 0) >= 0 ? 1 : -1;
-          const hx = a.x + side * 84 * k, hy = GROUND - 123 * k; const z = st.cam.z, P = { x: CX + z * (hx - st.cam.x), y: 960 + z * (hy - st.cam.y) };
+          const hx = a.x + side * 92 * k, hy = GROUND - 116 * k; const z = st.cam.z, P = { x: CX + z * (hx - st.cam.x), y: 960 + z * (hy - st.cam.y) };
           const T = s2 => `translate(${P.x}px,${P.y}px) scale(${s2}) translate(${-P.x}px,${-P.y}px)`;
           $('#punchG').getAnimations().forEach(x => x.cancel());
           $('#punchG').animate([{ transform: T(1) }, { transform: T(1.25), offset: .35 }, { transform: T(7) }], { duration: 900, delay: d + 250, easing: 'cubic-bezier(.6,0,.9,.5)', fill: 'forwards' });
